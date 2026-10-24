@@ -20,7 +20,6 @@ public class Usuario {
     private UUID id;
     private String nome;
     private String email;
-    // TODO: associar Restaurante
     private TipoUsuario tipoUsuario;
     private Boolean ativo;
     private LocalDateTime dataCriacao;
@@ -34,8 +33,12 @@ public class Usuario {
         return this.tipoUsuario != null && this.tipoUsuario.isCliente();
     }
 
+    public boolean isAtivo() {
+        return this.ativo != null && Boolean.TRUE.equals(this.ativo);
+    }
+
     public void validarAtivo() {
-        if (this.ativo == null || !this.ativo) {
+        if (this.ativo == null || Boolean.FALSE.equals(this.ativo)) {
             throw new AcessoNaoAutorizadoException("Usuário inativo ou não autorizado.");
         }
     }
@@ -45,8 +48,6 @@ public class Usuario {
                 novoTipoUsuario.getAtivo() == null || !novoTipoUsuario.getAtivo()) {
             throw new RegraNegocioException("Tipo de usuário válido é obrigatório.");
         }
-        // TODO: ao alterar o tipo de DONO_RESTAURANTE p/ CLIENTE garantir que ele não
-        // seja o único dono ativo de restaurantes cadastrados
         if (this.tipoUsuario == null ||
                 !Objects.equals(this.tipoUsuario.getId(), novoTipoUsuario.getId())) {
             this.tipoUsuario = novoTipoUsuario;
