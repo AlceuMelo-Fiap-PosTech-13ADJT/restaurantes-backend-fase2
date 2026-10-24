@@ -27,7 +27,8 @@ public class Restaurante {
     private String tipoCozinha;
     private List<ItemCardapio> itensCardapio;
     private String horarioFuncionamento;
-    private List<Usuario> usuarios;
+    private Usuario dono;
+    private List<Usuario> clientes;
     private Boolean ativo;
     private LocalDateTime dataCriacao;
     private LocalDateTime dataAlteracao;
@@ -36,15 +37,9 @@ public class Restaurante {
         if (this.nome == null || this.nome.isBlank()) {
             throw new RegraNegocioException("Nome do restaurante é obrigatório.");
         }
-        if (this.itensCardapio == null || this.itensCardapio.isEmpty()) {
-            throw new RegraNegocioException("Restaurante deve possuir pelo menos um item de cardápio associado.");
-        }
-        if (this.usuarios == null || this.usuarios.isEmpty()) {
-            throw new RegraNegocioException("Restaurante deve possuir pelo menos um usuário associado.");
-        }
-        if (this.usuarios.stream().noneMatch(Usuario::isDonoRestaurante)) {
+        if (this.dono == null || !this.dono.isDonoRestaurante()) {
             throw new RegraNegocioException(
-                    "Restaurante deve possuir pelo menos um usuário do tipo DONO_RESTAURANTE associado.");
+                    "Restaurante deve possuir um dono associado.");
         }
         if (this.endereco == null || this.endereco.isBlank()) {
             throw new RegraNegocioException("Endereço do restaurante é obrigatório.");
@@ -103,24 +98,24 @@ public class Restaurante {
         this.dataAlteracao = LocalDateTime.now();
     }
 
-    public void adicionaUsuario(Usuario usuarioNovo) {
-        if (usuarioNovo == null) {
-            throw new RegraNegocioException("Usuário é obrigatório.");
+    public void adicionaCliente(Usuario clienteNovo) {
+        if (clienteNovo == null) {
+            throw new RegraNegocioException("Cliente é obrigatório.");
         }
-        if (this.usuarios == null) {
-            this.usuarios = new ArrayList<>();
+        if (this.clientes == null) {
+            this.clientes = new ArrayList<>();
         }
-        if (this.usuarios.stream().anyMatch(usuario -> Objects.equals(usuarioNovo.getId(), usuario.getId()))) {
-            throw new RegraNegocioException("Usuário já existe.");
+        if (this.clientes.stream().anyMatch(cliente -> Objects.equals(clienteNovo.getId(), cliente.getId()))) {
+            throw new RegraNegocioException("Cliente já está associado ao restaurante.");
         }
-        this.usuarios.add(usuarioNovo);
+        this.clientes.add(clienteNovo);
         this.dataAlteracao = LocalDateTime.now();
     }
 
-    public void removeUsuario(UUID usuarioId) {
-        if (usuarioId == null ||
-                !this.usuarios.removeIf(usuario -> Objects.equals(usuario.getId(), usuarioId))) {
-            throw new RegraNegocioException("Usuario não encontrado.");
+    public void removeCliente(UUID clienteId) {
+        if (clienteId == null ||
+                !this.clientes.removeIf(usuario -> Objects.equals(usuario.getId(), clienteId))) {
+            throw new RegraNegocioException("Cliente não encontrado.");
         }
         this.dataAlteracao = LocalDateTime.now();
     }
@@ -141,10 +136,8 @@ public class Restaurante {
     }
 
     public void validarDono(UUID operadorId) {
-        if (operadorId == null || this.usuarios == null || this.usuarios.isEmpty() ||
-                this.usuarios.stream().noneMatch(
-                        usuario -> usuario.isDonoRestaurante() &&
-                                Objects.equals(usuario.getId(), operadorId))) {
+        if (operadorId == null || this.dono == null || this.dono.getId() == null ||
+                !Objects.equals(this.dono.getId(), operadorId)) {
             throw new DonoRestauranteInvalidoException("Operador não é o dono deste restaurante.");
         }
     }

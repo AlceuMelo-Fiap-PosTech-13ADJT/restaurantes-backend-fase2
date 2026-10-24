@@ -79,7 +79,8 @@ class RestauranteTest {
                 .tipoCozinha("Italiana")
                 .horarioFuncionamento("18:00 às 23:00")
                 .itensCardapio(new ArrayList<>(List.of(itemCardapioPadrao)))
-                .usuarios(new ArrayList<>(List.of(usuarioDono)))
+                .dono(usuarioDono)
+                .clientes(new ArrayList<>(List.of(usuarioCliente)))
                 .ativo(true)
                 .dataCriacao(LocalDateTime.now().minusDays(5))
                 .build();
@@ -110,66 +111,47 @@ class RestauranteTest {
         }
 
         @Test
-        @DisplayName("Deve lançar exceção quando lista de itens de cardápio for nula")
-        void deveLancarExcecaoQuandoItensCardapioNulo() {
+        @DisplayName("Deve lançar exceção quando dono for nulo")
+        void deveLancarExcecaoQuandoDonoNulo() {
+            restaurante.setDono(null);
+
+            RegraNegocioException ex = assertThrows(
+                    RegraNegocioException.class,
+                    () -> restaurante.validarParaCriacao()
+            );
+            assertEquals("Restaurante deve possuir um dono associado.", ex.getMessage());
+        }
+
+        @Test
+        @DisplayName("Deve lançar exceção quando dono não possuir perfil de DONO_RESTAURANTE")
+        void deveLancarExcecaoQuandoDonoNaoForDonoRestaurante() {
+            restaurante.setDono(usuarioCliente);
+
+            RegraNegocioException ex = assertThrows(
+                    RegraNegocioException.class,
+                    () -> restaurante.validarParaCriacao()
+            );
+            assertEquals("Restaurante deve possuir um dono associado.", ex.getMessage());
+        }
+
+        @Test
+        @DisplayName("Deve validar com sucesso quando itens de cardápio for nulo ou vazio")
+        void deveValidarComSucessoQuandoItensCardapioNuloOuVazio() {
             restaurante.setItensCardapio(null);
+            assertDoesNotThrow(() -> restaurante.validarParaCriacao());
 
-            RegraNegocioException ex = assertThrows(
-                    RegraNegocioException.class,
-                    () -> restaurante.validarParaCriacao()
-            );
-            assertEquals("Restaurante deve possuir pelo menos um item de cardápio associado.", ex.getMessage());
-        }
-
-        @Test
-        @DisplayName("Deve lançar exceção quando lista de itens de cardápio for vazia")
-        void deveLancarExcecaoQuandoItensCardapioVazia() {
             restaurante.setItensCardapio(new ArrayList<>());
-
-            RegraNegocioException ex = assertThrows(
-                    RegraNegocioException.class,
-                    () -> restaurante.validarParaCriacao()
-            );
-            assertEquals("Restaurante deve possuir pelo menos um item de cardápio associado.", ex.getMessage());
+            assertDoesNotThrow(() -> restaurante.validarParaCriacao());
         }
 
         @Test
-        @DisplayName("Deve lançar exceção quando lista de usuários for nula")
-        void deveLancarExcecaoQuandoUsuariosNulo() {
-            restaurante.setUsuarios(null);
+        @DisplayName("Deve validar com sucesso quando clientes for nulo ou vazio")
+        void deveValidarComSucessoQuandoClientesNuloOuVazio() {
+            restaurante.setClientes(null);
+            assertDoesNotThrow(() -> restaurante.validarParaCriacao());
 
-            RegraNegocioException ex = assertThrows(
-                    RegraNegocioException.class,
-                    () -> restaurante.validarParaCriacao()
-            );
-            assertEquals("Restaurante deve possuir pelo menos um usuário associado.", ex.getMessage());
-        }
-
-        @Test
-        @DisplayName("Deve lançar exceção quando lista de usuários for vazia")
-        void deveLancarExcecaoQuandoUsuariosVazia() {
-            restaurante.setUsuarios(new ArrayList<>());
-
-            RegraNegocioException ex = assertThrows(
-                    RegraNegocioException.class,
-                    () -> restaurante.validarParaCriacao()
-            );
-            assertEquals("Restaurante deve possuir pelo menos um usuário associado.", ex.getMessage());
-        }
-
-        @Test
-        @DisplayName("Deve lançar exceção quando não houver nenhum usuário do tipo DONO_RESTAURANTE")
-        void deveLancarExcecaoQuandoSemDonoAssociado() {
-            restaurante.setUsuarios(new ArrayList<>(List.of(usuarioCliente)));
-
-            RegraNegocioException ex = assertThrows(
-                    RegraNegocioException.class,
-                    () -> restaurante.validarParaCriacao()
-            );
-            assertEquals(
-                    "Restaurante deve possuir pelo menos um usuário do tipo DONO_RESTAURANTE associado.",
-                    ex.getMessage()
-            );
+            restaurante.setClientes(new ArrayList<>());
+            assertDoesNotThrow(() -> restaurante.validarParaCriacao());
         }
 
         @ParameterizedTest
@@ -408,86 +390,91 @@ class RestauranteTest {
     }
 
     @Nested
-    @DisplayName("Gerenciamento de Usuários")
-    class UsuariosTests {
+    @DisplayName("Gerenciamento de Clientes")
+    class ClientesTests {
 
         @Test
-        @DisplayName("Deve adicionar novo usuário com sucesso")
-        void deveAdicionarUsuarioComSucesso() {
-            restaurante.adicionaUsuario(usuarioCliente);
+        @DisplayName("Deve adicionar novo cliente com sucesso")
+        void deveAdicionarClienteComSucesso() {
+            Usuario novoCliente = Usuario.builder()
+                    .id(UUID.randomUUID())
+                    .nome("Novo Cliente")
+                    .build();
 
-            assertEquals(2, restaurante.getUsuarios().size());
-            assertTrue(restaurante.getUsuarios().contains(usuarioCliente));
+            restaurante.adicionaCliente(novoCliente);
+
+            assertEquals(2, restaurante.getClientes().size());
+            assertTrue(restaurante.getClientes().contains(novoCliente));
             assertNotNull(restaurante.getDataAlteracao());
         }
 
         @Test
-        @DisplayName("Deve inicializar lista e adicionar usuário quando lista for nula")
-        void deveInicializarListaQuandoNulaAoAdicionarUsuario() {
-            restaurante.setUsuarios(null);
+        @DisplayName("Deve inicializar lista e adicionar cliente quando lista for nula")
+        void deveInicializarListaQuandoNulaAoAdicionarCliente() {
+            restaurante.setClientes(null);
 
-            restaurante.adicionaUsuario(usuarioDono);
+            restaurante.adicionaCliente(usuarioCliente);
 
-            assertNotNull(restaurante.getUsuarios());
-            assertEquals(1, restaurante.getUsuarios().size());
+            assertNotNull(restaurante.getClientes());
+            assertEquals(1, restaurante.getClientes().size());
         }
 
         @Test
-        @DisplayName("Deve lançar exceção ao tentar adicionar usuário nulo")
-        void deveLancarExcecaoAoAdicionarUsuarioNulo() {
+        @DisplayName("Deve lançar exceção ao tentar adicionar cliente nulo")
+        void deveLancarExcecaoAoAdicionarClienteNulo() {
             RegraNegocioException ex = assertThrows(
                     RegraNegocioException.class,
-                    () -> restaurante.adicionaUsuario(null)
+                    () -> restaurante.adicionaCliente(null)
             );
-            assertEquals("Usuário é obrigatório.", ex.getMessage());
+            assertEquals("Cliente é obrigatório.", ex.getMessage());
         }
 
         @Test
-        @DisplayName("Deve lançar exceção ao tentar adicionar usuário já existente")
-        void deveLancarExcecaoAoAdicionarUsuarioDuplicado() {
-            Usuario usuarioDuplicado = Usuario.builder()
-                    .id(usuarioDono.getId())
-                    .nome("Carlos Clone")
+        @DisplayName("Deve lançar exceção ao tentar adicionar cliente já existente")
+        void deveLancarExcecaoAoAdicionarClienteDuplicado() {
+            Usuario clienteDuplicado = Usuario.builder()
+                    .id(usuarioCliente.getId())
+                    .nome("Maria Clone")
                     .build();
 
             RegraNegocioException ex = assertThrows(
                     RegraNegocioException.class,
-                    () -> restaurante.adicionaUsuario(usuarioDuplicado)
+                    () -> restaurante.adicionaCliente(clienteDuplicado)
             );
-            assertEquals("Usuário já existe.", ex.getMessage());
+            assertEquals("Cliente já está associado ao restaurante.", ex.getMessage());
         }
 
         @Test
-        @DisplayName("Deve remover usuário com sucesso")
-        void deveRemoverUsuarioComSucesso() {
-            UUID idParaRemover = usuarioDono.getId();
+        @DisplayName("Deve remover cliente com sucesso")
+        void deveRemoverClienteComSucesso() {
+            UUID idParaRemover = usuarioCliente.getId();
 
-            restaurante.removeUsuario(idParaRemover);
+            restaurante.removeCliente(idParaRemover);
 
-            assertEquals(0, restaurante.getUsuarios().size());
+            assertEquals(0, restaurante.getClientes().size());
             assertNotNull(restaurante.getDataAlteracao());
         }
 
         @Test
-        @DisplayName("Deve lançar exceção ao tentar remover usuário com id nulo")
-        void deveLancarExcecaoAoRemoverUsuarioIdNulo() {
+        @DisplayName("Deve lançar exceção ao tentar remover cliente com id nulo")
+        void deveLancarExcecaoAoRemoverClienteIdNulo() {
             RegraNegocioException ex = assertThrows(
                     RegraNegocioException.class,
-                    () -> restaurante.removeUsuario(null)
+                    () -> restaurante.removeCliente(null)
             );
-            assertEquals("Usuario não encontrado.", ex.getMessage());
+            assertEquals("Cliente não encontrado.", ex.getMessage());
         }
 
         @Test
-        @DisplayName("Deve lançar exceção ao tentar remover usuário não encontrado")
-        void deveLancarExcecaoAoRemoverUsuarioInexistente() {
+        @DisplayName("Deve lançar exceção ao tentar remover cliente não encontrado")
+        void deveLancarExcecaoAoRemoverClienteInexistente() {
             UUID idInexistente = UUID.randomUUID();
 
             RegraNegocioException ex = assertThrows(
                     RegraNegocioException.class,
-                    () -> restaurante.removeUsuario(idInexistente)
+                    () -> restaurante.removeCliente(idInexistente)
             );
-            assertEquals("Usuario não encontrado.", ex.getMessage());
+            assertEquals("Cliente não encontrado.", ex.getMessage());
         }
     }
 
@@ -566,9 +553,9 @@ class RestauranteTest {
         }
 
         @Test
-        @DisplayName("Deve lançar DonoRestauranteInvalidoException quando lista de usuários for nula")
-        void deveLancarExcecaoQuandoUsuariosNulo() {
-            restaurante.setUsuarios(null);
+        @DisplayName("Deve lançar DonoRestauranteInvalidoException quando dono for nulo")
+        void deveLancarExcecaoQuandoDonoNulo() {
+            restaurante.setDono(null);
 
             DonoRestauranteInvalidoException ex = assertThrows(
                     DonoRestauranteInvalidoException.class,
@@ -578,9 +565,9 @@ class RestauranteTest {
         }
 
         @Test
-        @DisplayName("Deve lançar DonoRestauranteInvalidoException quando lista de usuários for vazia")
-        void deveLancarExcecaoQuandoUsuariosVazia() {
-            restaurante.setUsuarios(new ArrayList<>());
+        @DisplayName("Deve lançar DonoRestauranteInvalidoException quando dono possuir id nulo")
+        void deveLancarExcecaoQuandoDonoPossuirIdNulo() {
+            restaurante.setDono(Usuario.builder().nome("Carlos Sem Id").build());
 
             DonoRestauranteInvalidoException ex = assertThrows(
                     DonoRestauranteInvalidoException.class,
@@ -590,8 +577,8 @@ class RestauranteTest {
         }
 
         @Test
-        @DisplayName("Deve lançar DonoRestauranteInvalidoException quando operador não pertencer ao restaurante")
-        void deveLancarExcecaoQuandoOperadorNaoPertencerAoRestaurante() {
+        @DisplayName("Deve lançar DonoRestauranteInvalidoException quando operador não for o dono")
+        void deveLancarExcecaoQuandoOperadorNaoForODono() {
             UUID operadorNaoAssociado = UUID.randomUUID();
 
             DonoRestauranteInvalidoException ex = assertThrows(
@@ -602,10 +589,8 @@ class RestauranteTest {
         }
 
         @Test
-        @DisplayName("Deve lançar DonoRestauranteInvalidoException quando operador pertencer ao restaurante mas for CLIENTE")
-        void deveLancarExcecaoQuandoOperadorForClienteENaoDono() {
-            restaurante.adicionaUsuario(usuarioCliente);
-
+        @DisplayName("Deve lançar DonoRestauranteInvalidoException quando operador for CLIENTE")
+        void deveLancarExcecaoQuandoOperadorForCliente() {
             DonoRestauranteInvalidoException ex = assertThrows(
                     DonoRestauranteInvalidoException.class,
                     () -> restaurante.validarDono(usuarioCliente.getId())
