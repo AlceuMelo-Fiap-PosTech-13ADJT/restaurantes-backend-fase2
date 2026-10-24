@@ -81,6 +81,16 @@ public class Restaurante {
         this.dataAlteracao = LocalDateTime.now();
     }
 
+    public boolean isAtivo() {
+        return this.ativo != null && Boolean.TRUE.equals(this.ativo);
+    }
+
+    public void validarAtivo() {
+        if (this.ativo == null || Boolean.FALSE.equals(this.ativo)) {
+            throw new RegraNegocioException("Restaurante inativo.");
+        }
+    }
+
     public void validarDono(UUID operadorId) {
         if (operadorId == null || this.usuarios == null || this.usuarios.isEmpty() ||
                 this.usuarios.stream().noneMatch(
