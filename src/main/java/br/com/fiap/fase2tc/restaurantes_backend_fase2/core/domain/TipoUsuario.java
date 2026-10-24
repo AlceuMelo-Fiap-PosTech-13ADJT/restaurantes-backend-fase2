@@ -40,6 +40,16 @@ public class TipoUsuario {
         this.dataAlteracao = LocalDateTime.now();
     }
 
+    public boolean isAtivo() {
+        return this.ativo != null && Boolean.TRUE.equals(this.ativo);
+    }
+
+    public void validarAtivo() {
+        if (this.ativo == null || Boolean.FALSE.equals(this.ativo)) {
+            throw new RegraNegocioException("Tipo de usuário inativo.");
+        }
+    }
+
     public boolean isDonoRestaurante() {
         return this.tipo != null && this.tipo.isDonoRestaurante();
     }
