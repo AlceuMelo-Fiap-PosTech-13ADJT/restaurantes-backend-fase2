@@ -5,10 +5,13 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.exception.AcessoNaoAutorizadoException;
 import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.exception.DonoRestauranteInvalidoException;
@@ -58,6 +61,29 @@ public class GlobalExceptionHandler {
                 .build();
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(corpo);
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ErroResponseJson> handleMensagemNaoLegivel(HttpMessageNotReadableException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new ErroResponseJson(HttpStatus.BAD_REQUEST.value(),
+                        "Corpo da requisição inválido ou mal formatado.", LocalDateTime.now()));
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ErroResponseJson> handleTipoInvalido(MethodArgumentTypeMismatchException ex) {
+        String parametro = ex.getName();
+        String tipoEsperado = ex.getRequiredType() != null ? ex.getRequiredType().getSimpleName() : "especificado";
+        String msg = String.format("O parâmetro '%s' recebeu um valor inválido. Esperado tipo: %s.", parametro, tipoEsperado);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new ErroResponseJson(HttpStatus.BAD_REQUEST.value(), msg, LocalDateTime.now()));
+    }
+
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity<ErroResponseJson> handleMetodoNaoSuportado(HttpRequestMethodNotSupportedException ex) {
+        String msg = String.format("Método HTTP '%s' não é suportado para este endpoint.", ex.getMethod());
+        return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED)
+                .body(new ErroResponseJson(HttpStatus.METHOD_NOT_ALLOWED.value(), msg, LocalDateTime.now()));
     }
 
     @ExceptionHandler(Exception.class)
