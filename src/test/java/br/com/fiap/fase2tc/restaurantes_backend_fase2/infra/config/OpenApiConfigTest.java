@@ -35,14 +35,31 @@ class OpenApiConfigTest {
     }
 
     @Test
-    @DisplayName("Deve adicionar header usuario-logado-id via OperationCustomizer")
-    void deveAdicionarHeaderUsuarioLogadoViaCustomizer() {
+    @DisplayName("Deve adicionar header usuario-logado-id via OperationCustomizer quando não existir")
+    void deveAdicionarHeaderUsuarioLogadoViaCustomizerQuandoNaoExistir() {
         OperationCustomizer customizer = openApiConfig.customizarHeaderUsuarioLogado();
         Operation operation = new Operation();
 
         Operation resultado = customizer.customize(operation, null);
 
         assertThat(resultado.getParameters()).isNotNull().hasSize(1);
+        Parameter param = resultado.getParameters().get(0);
+        assertThat(param.getName()).isEqualTo("usuario-logado-id");
+        assertThat(param.getIn()).isEqualTo("header");
+        assertThat(param.getRequired()).isTrue();
+        assertThat(param.getDescription()).contains("UUID do usuário logado");
+    }
+
+    @Test
+    @DisplayName("Não deve duplicar header usuario-logado-id se já existente na operação")
+    void deveNaoDuplicarHeaderSeJaExistente() {
+        OperationCustomizer customizer = openApiConfig.customizarHeaderUsuarioLogado();
+        Operation operation = new Operation();
+        operation.addParametersItem(new Parameter().name("usuario-logado-id").in("header"));
+
+        Operation resultado = customizer.customize(operation, null);
+
+        assertThat(resultado.getParameters()).hasSize(1);
         Parameter param = resultado.getParameters().get(0);
         assertThat(param.getName()).isEqualTo("usuario-logado-id");
         assertThat(param.getIn()).isEqualTo("header");
