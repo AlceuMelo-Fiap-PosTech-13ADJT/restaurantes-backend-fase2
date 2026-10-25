@@ -12,6 +12,8 @@ import io.swagger.v3.oas.models.parameters.Parameter;
 @Configuration
 public class OpenApiConfig {
 
+    public static final String HEADER_USUARIO_LOGADO = "usuario-logado-id";
+
     @Bean
     public OpenAPI customOpenAPI() {
         return new OpenAPI()
@@ -24,14 +26,27 @@ public class OpenApiConfig {
     @Bean
     public OperationCustomizer customizarHeaderUsuarioLogado() {
         return (operation, handlerMethod) -> {
-            operation.addParametersItem(
-                    new Parameter()
-                            .name("usuario-logado-id")
-                            .description("UUID do usuário logado realizando a operação (controle de acesso e tenant)")
-                            .required(true)
-                            .in("header")
-                            .schema(new StringSchema().format("uuid").example("a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11"))
-            );
+            Parameter headerParam = null;
+            if (operation.getParameters() != null) {
+                headerParam = operation.getParameters().stream()
+                        .filter(p -> HEADER_USUARIO_LOGADO.equalsIgnoreCase(p.getName()))
+                        .findFirst()
+                        .orElse(null);
+            }
+
+            if (headerParam == null) {
+                headerParam = new Parameter()
+                        .name(HEADER_USUARIO_LOGADO)
+                        .in("header");
+                operation.addParametersItem(headerParam);
+            }
+
+            headerParam.setDescription("UUID do usuário logado realizando a operação (controle de acesso e tenant)");
+            headerParam.setRequired(true);
+            if (headerParam.getSchema() == null) {
+                headerParam.setSchema(new StringSchema().format("uuid").example("a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11"));
+            }
+
             return operation;
         };
     }
