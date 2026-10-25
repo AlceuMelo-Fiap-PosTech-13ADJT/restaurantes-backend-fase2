@@ -20,6 +20,7 @@ public class Usuario {
     private UUID id;
     private String nome;
     private String email;
+    private UUID restauranteId;
     private TipoUsuario tipoUsuario;
     private Boolean ativo;
     private LocalDateTime dataCriacao;
@@ -41,6 +42,36 @@ public class Usuario {
         if (this.ativo == null || Boolean.FALSE.equals(this.ativo)) {
             throw new AcessoNaoAutorizadoException("Usuário inativo ou não autorizado.");
         }
+    }
+
+    public void validarParaCriacao() {
+        if (this.nome == null || this.nome.trim().isBlank()) {
+            throw new RegraNegocioException("Nome do usuário é obrigatório.");
+        }
+        if (this.email == null || this.email.trim().isBlank()) {
+            throw new RegraNegocioException("E-mail do usuário é obrigatório.");
+        }
+        if (this.tipoUsuario == null) {
+            throw new RegraNegocioException("Tipo de usuário é obrigatório.");
+        }
+    }
+
+    public void atualizar(String novoNome, String novoEmail, TipoUsuario novoTipoUsuario) {
+        if (novoNome != null && !novoNome.trim().isBlank()) {
+            this.nome = novoNome.trim();
+        }
+        if (novoEmail != null && !novoEmail.trim().isBlank()) {
+            this.email = novoEmail.trim();
+        }
+        if (novoTipoUsuario != null) {
+            this.tipoUsuario = novoTipoUsuario;
+        }
+        this.dataAlteracao = LocalDateTime.now();
+    }
+
+    public void desativar() {
+        this.ativo = false;
+        this.dataAlteracao = LocalDateTime.now();
     }
 
     public void associarTipoUsuario(TipoUsuario novoTipoUsuario) {

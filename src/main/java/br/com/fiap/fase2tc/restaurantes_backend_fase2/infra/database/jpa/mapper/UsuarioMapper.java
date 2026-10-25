@@ -32,6 +32,7 @@ public class UsuarioMapper {
                 .id(entity.getId())
                 .nome(entity.getNome())
                 .email(entity.getEmail())
+                .restauranteId(entity.getRestauranteId())
                 .tipoUsuario(tipoUsuario)
                 .ativo(entity.getAtivo())
                 .dataCriacao(entity.getDataCriacao())
@@ -53,11 +54,13 @@ public class UsuarioMapper {
             tipoUsuarioEntity = tipoUsuarioMapper.toEntity(domain.getTipoUsuario());
         }
 
+        UUID targetRestauranteId = restauranteId != null ? restauranteId : domain.getRestauranteId();
+
         return UsuarioEntity.builder()
                 .id(domain.getId())
                 .nome(domain.getNome())
                 .email(domain.getEmail())
-                .restauranteId(restauranteId)
+                .restauranteId(targetRestauranteId)
                 .tipoUsuario(tipoUsuarioEntity)
                 .ativo(domain.getAtivo())
                 .dataCriacao(domain.getDataCriacao())

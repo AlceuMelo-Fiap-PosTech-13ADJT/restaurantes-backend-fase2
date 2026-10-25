@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Configuration;
 import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.controller.CardapioController;
 import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.controller.RestauranteController;
 import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.controller.TipoUsuarioController;
+import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.controller.UsuarioController;
 import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.gateway.ItemCardapioGateway;
 import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.gateway.RestauranteGateway;
 import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.gateway.TipoUsuarioGateway;
@@ -20,30 +21,40 @@ import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.usecase.AtualizarRest
 import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.usecase.AtualizarRestauranteUsecaseImpl;
 import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.usecase.AtualizarTipoUsuarioUsecase;
 import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.usecase.AtualizarTipoUsuarioUsecaseImpl;
+import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.usecase.AtualizarUsuarioUsecase;
+import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.usecase.AtualizarUsuarioUsecaseImpl;
 import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.usecase.BuscarItemCardapioPorIdUsecase;
 import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.usecase.BuscarItemCardapioPorIdUsecaseImpl;
 import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.usecase.BuscarRestaurantePorIdUsecase;
 import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.usecase.BuscarRestaurantePorIdUsecaseImpl;
 import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.usecase.BuscarTipoUsuarioPorIdUsecase;
 import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.usecase.BuscarTipoUsuarioPorIdUsecaseImpl;
+import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.usecase.BuscarUsuarioPorIdUsecase;
+import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.usecase.BuscarUsuarioPorIdUsecaseImpl;
 import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.usecase.CriarItemCardapioUsecase;
 import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.usecase.CriarItemCardapioUsecaseImpl;
 import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.usecase.CriarRestauranteUsecase;
 import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.usecase.CriarRestauranteUsecaseImpl;
 import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.usecase.CriarTipoUsuarioUsecase;
 import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.usecase.CriarTipoUsuarioUsecaseImpl;
+import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.usecase.CriarUsuarioUsecase;
+import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.usecase.CriarUsuarioUsecaseImpl;
 import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.usecase.DesativarItemCardapioUsecase;
 import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.usecase.DesativarItemCardapioUsecaseImpl;
 import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.usecase.DesativarRestauranteUsecase;
 import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.usecase.DesativarRestauranteUsecaseImpl;
 import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.usecase.DesativarTipoUsuarioUsecase;
 import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.usecase.DesativarTipoUsuarioUsecaseImpl;
+import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.usecase.DesativarUsuarioUsecase;
+import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.usecase.DesativarUsuarioUsecaseImpl;
 import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.usecase.ListarItensCardapioUsecase;
 import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.usecase.ListarItensCardapioUsecaseImpl;
 import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.usecase.ListarRestaurantesUsecase;
 import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.usecase.ListarRestaurantesUsecaseImpl;
 import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.usecase.ListarTiposUsuarioUsecase;
 import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.usecase.ListarTiposUsuarioUsecaseImpl;
+import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.usecase.ListarUsuariosPorRestauranteUsecase;
+import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.usecase.ListarUsuariosPorRestauranteUsecaseImpl;
 import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.usecase.ValidarPermissaoUsuarioUsecase;
 import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.usecase.ValidarPermissaoUsuarioUsecaseImpl;
 
@@ -212,6 +223,58 @@ public class InjecaoDependenciaConfiguration {
                 buscarItemCardapioPorIdUsecase,
                 listarItensCardapioUsecase,
                 desativarItemCardapioUsecase
+        );
+    }
+
+    // Usuario
+    @Bean
+    public CriarUsuarioUsecase criarUsuarioUsecase(
+            UsuarioGateway usuarioGateway,
+            TipoUsuarioGateway tipoUsuarioGateway,
+            RestauranteGateway restauranteGateway) {
+        return new CriarUsuarioUsecaseImpl(usuarioGateway, tipoUsuarioGateway, restauranteGateway);
+    }
+
+    @Bean
+    public AtualizarUsuarioUsecase atualizarUsuarioUsecase(
+            UsuarioGateway usuarioGateway,
+            TipoUsuarioGateway tipoUsuarioGateway,
+            RestauranteGateway restauranteGateway) {
+        return new AtualizarUsuarioUsecaseImpl(usuarioGateway, tipoUsuarioGateway, restauranteGateway);
+    }
+
+    @Bean
+    public BuscarUsuarioPorIdUsecase buscarUsuarioPorIdUsecase(UsuarioGateway usuarioGateway) {
+        return new BuscarUsuarioPorIdUsecaseImpl(usuarioGateway);
+    }
+
+    @Bean
+    public ListarUsuariosPorRestauranteUsecase listarUsuariosPorRestauranteUsecase(
+            UsuarioGateway usuarioGateway,
+            RestauranteGateway restauranteGateway) {
+        return new ListarUsuariosPorRestauranteUsecaseImpl(usuarioGateway, restauranteGateway);
+    }
+
+    @Bean
+    public DesativarUsuarioUsecase desativarUsuarioUsecase(UsuarioGateway usuarioGateway) {
+        return new DesativarUsuarioUsecaseImpl(usuarioGateway);
+    }
+
+    @Bean
+    public UsuarioController usuarioController(
+            CriarUsuarioUsecase criarUsuarioUsecase,
+            AtualizarUsuarioUsecase atualizarUsuarioUsecase,
+            BuscarUsuarioPorIdUsecase buscarUsuarioPorIdUsecase,
+            ListarUsuariosPorRestauranteUsecase listarUsuariosPorRestauranteUsecase,
+            DesativarUsuarioUsecase desativarUsuarioUsecase,
+            AssociarTipoUsuarioUsecase associarTipoUsuarioUsecase) {
+        return new UsuarioController(
+                criarUsuarioUsecase,
+                atualizarUsuarioUsecase,
+                buscarUsuarioPorIdUsecase,
+                listarUsuariosPorRestauranteUsecase,
+                desativarUsuarioUsecase,
+                associarTipoUsuarioUsecase
         );
     }
 }
