@@ -33,11 +33,12 @@ class RestauranteRepositoryTest {
     @Test
     @DisplayName("Deve salvar restaurante e buscar por dono e filtros")
     void deveSalvarEBuscarRestaurante() {
-        var tipo = tipoUsuarioRepository.save(TipoUsuarioEntity.builder()
-                .tipo(TipoUsuarioEnum.DONO_RESTAURANTE)
-                .nome("Dono de restaurante")
-                .ativo(true)
-                .build());
+        var tipo = tipoUsuarioRepository.findByTipoAndAtivoTrue(TipoUsuarioEnum.DONO_RESTAURANTE)
+                .orElseGet(() -> tipoUsuarioRepository.save(TipoUsuarioEntity.builder()
+                        .tipo(TipoUsuarioEnum.DONO_RESTAURANTE)
+                        .nome("Dono de restaurante")
+                        .ativo(true)
+                        .build()));
 
         var dono = usuarioRepository.save(UsuarioEntity.builder()
                 .nome("Chef Luigi")
@@ -47,9 +48,9 @@ class RestauranteRepositoryTest {
                 .build());
 
         var restaurante = restauranteRepository.save(RestauranteEntity.builder()
-                .nome("Trattoria Deliziosa")
+                .nome("Bistrô Parisien")
                 .endereco("Av. Paulista, 1000")
-                .tipoCozinha("Italiana")
+                .tipoCozinha("Francesa")
                 .horarioFuncionamento("11h às 23h")
                 .dono(dono)
                 .ativo(true)
@@ -59,12 +60,12 @@ class RestauranteRepositoryTest {
 
         Optional<RestauranteEntity> porId = restauranteRepository.findByIdAndAtivoTrue(restaurante.getId());
         assertThat(porId).isPresent();
-        assertThat(porId.get().getNome()).isEqualTo("Trattoria Deliziosa");
+        assertThat(porId.get().getNome()).isEqualTo("Bistrô Parisien");
 
         List<RestauranteEntity> porDono = restauranteRepository.findByDono_IdAndAtivoTrue(dono.getId());
         assertThat(porDono).hasSize(1);
 
-        List<RestauranteEntity> porCozinha = restauranteRepository.findByTipoCozinhaIgnoreCaseAndAtivoTrue("italiana");
+        List<RestauranteEntity> porCozinha = restauranteRepository.findByTipoCozinhaIgnoreCaseAndAtivoTrue("francesa");
         assertThat(porCozinha).hasSize(1);
 
         boolean existeDono = restauranteRepository.existsByDono_IdAndAtivoTrue(dono.getId());

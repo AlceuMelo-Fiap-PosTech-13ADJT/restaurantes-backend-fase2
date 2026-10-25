@@ -24,19 +24,10 @@ class TipoUsuarioRepositoryTest {
     @Test
     @DisplayName("Deve salvar e buscar TipoUsuario por tipo e status ativo")
     void deveSalvarEBuscarPorTipo() {
-        var entity = TipoUsuarioEntity.builder()
-                .tipo(TipoUsuarioEnum.DONO_RESTAURANTE)
-                .nome("Dono de restaurante")
-                .ativo(true)
-                .build();
-
-        var salvo = repository.save(entity);
-
-        assertThat(salvo.getId()).isNotNull();
-        assertThat(salvo.getDataCriacao()).isNotNull();
-
         Optional<TipoUsuarioEntity> busca = repository.findByTipoAndAtivoTrue(TipoUsuarioEnum.DONO_RESTAURANTE);
         assertThat(busca).isPresent();
+        assertThat(busca.get().getId()).isNotNull();
+        assertThat(busca.get().getDataCriacao()).isNotNull();
         assertThat(busca.get().getTipo()).isEqualTo(TipoUsuarioEnum.DONO_RESTAURANTE);
 
         boolean existe = repository.existsByTipoAndAtivoTrue(TipoUsuarioEnum.DONO_RESTAURANTE);
@@ -46,16 +37,22 @@ class TipoUsuarioRepositoryTest {
     @Test
     @DisplayName("Deve buscar por nome ignorando maiúsculas e minúsculas")
     void deveBuscarPorNome() {
-        var entity = TipoUsuarioEntity.builder()
-                .tipo(TipoUsuarioEnum.CLIENTE)
-                .nome("Cliente")
-                .ativo(true)
-                .build();
-
-        repository.save(entity);
-
         Optional<TipoUsuarioEntity> busca = repository.findByNomeIgnoreCaseAndAtivoTrue("cLIENTe");
         assertThat(busca).isPresent();
         assertThat(busca.get().getTipo()).isEqualTo(TipoUsuarioEnum.CLIENTE);
+    }
+
+    @Test
+    @DisplayName("Deve salvar e atualizar status ativo de TipoUsuario")
+    void deveSalvarEAtualizarTipoUsuario() {
+        var entity = TipoUsuarioEntity.builder()
+                .tipo(TipoUsuarioEnum.CLIENTE)
+                .nome("Cliente Temporário")
+                .ativo(false)
+                .build();
+
+        var salvo = repository.save(entity);
+        assertThat(salvo.getId()).isNotNull();
+        assertThat(salvo.getAtivo()).isFalse();
     }
 }
