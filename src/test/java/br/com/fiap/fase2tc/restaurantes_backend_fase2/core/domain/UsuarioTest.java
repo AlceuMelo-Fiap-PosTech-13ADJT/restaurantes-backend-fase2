@@ -235,6 +235,56 @@ class UsuarioTest {
     }
 
     @Nested
+    @DisplayName("Operações de ciclo de vida e atualização")
+    class CicloDeVidaTests {
+
+        @Test
+        @DisplayName("Deve validar para criação com sucesso quando dados válidos")
+        void deveValidarParaCriacaoComSucesso() {
+            assertDoesNotThrow(() -> usuario.validarParaCriacao());
+        }
+
+        @Test
+        @DisplayName("Deve lançar exceção ao validar criação com nome inválido")
+        void deveLancarExcecaoNomeInvalido() {
+            Usuario u = Usuario.builder().nome(" ").email("e@e.com").tipoUsuario(tipoDonoAtivo).build();
+            assertThrows(RegraNegocioException.class, u::validarParaCriacao);
+        }
+
+        @Test
+        @DisplayName("Deve lançar exceção ao validar criação com email inválido")
+        void deveLancarExcecaoEmailInvalido() {
+            Usuario u = Usuario.builder().nome("Nome").email(" ").tipoUsuario(tipoDonoAtivo).build();
+            assertThrows(RegraNegocioException.class, u::validarParaCriacao);
+        }
+
+        @Test
+        @DisplayName("Deve lançar exceção ao validar criação com tipoUsuario nulo")
+        void deveLancarExcecaoTipoUsuarioNulo() {
+            Usuario u = Usuario.builder().nome("Nome").email("e@e.com").tipoUsuario(null).build();
+            assertThrows(RegraNegocioException.class, u::validarParaCriacao);
+        }
+
+        @Test
+        @DisplayName("Deve atualizar dados do usuário")
+        void deveAtualizarUsuario() {
+            usuario.atualizar("Novo Nome", "novo@email.com", tipoClienteAtivo);
+            assertEquals("Novo Nome", usuario.getNome());
+            assertEquals("novo@email.com", usuario.getEmail());
+            assertEquals(tipoClienteAtivo, usuario.getTipoUsuario());
+            assertNotNull(usuario.getDataAlteracao());
+        }
+
+        @Test
+        @DisplayName("Deve desativar usuário com sucesso")
+        void deveDesativarUsuario() {
+            usuario.desativar();
+            assertFalse(usuario.getAtivo());
+            assertNotNull(usuario.getDataAlteracao());
+        }
+    }
+
+    @Nested
     @DisplayName("Construtores e Getters")
     class ConstrutoresTests {
 
