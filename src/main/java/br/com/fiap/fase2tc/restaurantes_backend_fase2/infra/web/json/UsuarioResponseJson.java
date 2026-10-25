@@ -28,6 +28,9 @@ public class UsuarioResponseJson {
     @Schema(description = "Endereço de e-mail", example = "carlos.dono@restaurante.com")
     private String email;
 
+    @Schema(description = "UUID do restaurante ao qual o usuário pertence", example = "e5b8d960-983b-486a-8b1b-6cb4be775e7a")
+    private UUID restauranteId;
+
     @Schema(description = "UUID do tipo de usuário vinculado", example = "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11")
     private UUID tipoUsuarioId;
 
@@ -55,6 +58,7 @@ public class UsuarioResponseJson {
                 .id(dto.getId())
                 .nome(dto.getNome())
                 .email(dto.getEmail())
+                .restauranteId(dto.getRestauranteId())
                 .tipoUsuarioId(dto.getTipoUsuarioId())
                 .tipoUsuarioNome(dto.getTipoUsuarioNome())
                 .ativo(dto.getAtivo())

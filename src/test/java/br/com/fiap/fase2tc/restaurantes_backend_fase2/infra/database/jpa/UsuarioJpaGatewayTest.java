@@ -211,4 +211,18 @@ class UsuarioJpaGatewayTest {
         assertThat(entity.getAtivo()).isFalse();
         verify(usuarioRepository).save(entity);
     }
+
+    @Test
+    @DisplayName("Deve desativar usuário diretamente por usuarioId")
+    void deveDesativarPorUsuarioId() {
+        UUID id = UUID.randomUUID();
+        UsuarioEntity entity = UsuarioEntity.builder().id(id).ativo(true).build();
+
+        when(usuarioRepository.findById(id)).thenReturn(Optional.of(entity));
+
+        gateway.desativar(id);
+
+        assertThat(entity.getAtivo()).isFalse();
+        verify(usuarioRepository).save(entity);
+    }
 }

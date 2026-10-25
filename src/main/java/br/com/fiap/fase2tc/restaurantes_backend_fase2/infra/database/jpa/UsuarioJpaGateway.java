@@ -132,7 +132,20 @@ public class UsuarioJpaGateway implements UsuarioGateway {
     @Override
     @Transactional
     public void desativar(UUID restauranteId, UUID usuarioId) {
-        usuarioRepository.findByIdAndRestauranteId(usuarioId, restauranteId).ifPresent(entity -> {
+        if (restauranteId != null) {
+            usuarioRepository.findByIdAndRestauranteId(usuarioId, restauranteId).ifPresent(entity -> {
+                entity.setAtivo(false);
+                usuarioRepository.save(entity);
+            });
+        } else {
+            desativar(usuarioId);
+        }
+    }
+
+    @Override
+    @Transactional
+    public void desativar(UUID usuarioId) {
+        usuarioRepository.findById(usuarioId).ifPresent(entity -> {
             entity.setAtivo(false);
             usuarioRepository.save(entity);
         });

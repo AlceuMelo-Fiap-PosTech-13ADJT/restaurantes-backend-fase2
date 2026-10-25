@@ -12,6 +12,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.controller.CardapioController;
 import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.controller.RestauranteController;
 import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.controller.TipoUsuarioController;
+import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.controller.UsuarioController;
 import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.gateway.ItemCardapioGateway;
 import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.gateway.RestauranteGateway;
 import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.gateway.TipoUsuarioGateway;
@@ -21,15 +22,20 @@ import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.usecase.AtualizarCard
 import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.usecase.AtualizarItemCardapioUsecase;
 import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.usecase.AtualizarRestauranteUsecase;
 import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.usecase.AtualizarTipoUsuarioUsecase;
+import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.usecase.AtualizarUsuarioUsecase;
 import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.usecase.BuscarItemCardapioPorIdUsecase;
 import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.usecase.BuscarRestaurantePorIdUsecase;
 import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.usecase.BuscarTipoUsuarioPorIdUsecase;
+import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.usecase.BuscarUsuarioPorIdUsecase;
+import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.usecase.ListarUsuariosPorRestauranteUsecase;
 import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.usecase.CriarItemCardapioUsecase;
 import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.usecase.CriarRestauranteUsecase;
 import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.usecase.CriarTipoUsuarioUsecase;
+import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.usecase.CriarUsuarioUsecase;
 import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.usecase.DesativarItemCardapioUsecase;
 import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.usecase.DesativarRestauranteUsecase;
 import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.usecase.DesativarTipoUsuarioUsecase;
+import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.usecase.DesativarUsuarioUsecase;
 import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.usecase.ListarItensCardapioUsecase;
 import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.usecase.ListarRestaurantesUsecase;
 import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.usecase.ListarTiposUsuarioUsecase;
@@ -73,6 +79,21 @@ class InjecaoDependenciaConfigurationTest {
 
     @Mock
     private AssociarTipoUsuarioUsecase associarTipoUsuarioUsecase;
+
+    @Mock
+    private CriarUsuarioUsecase criarUsuarioUsecase;
+
+    @Mock
+    private AtualizarUsuarioUsecase atualizarUsuarioUsecase;
+
+    @Mock
+    private BuscarUsuarioPorIdUsecase buscarUsuarioPorIdUsecase;
+
+    @Mock
+    private ListarUsuariosPorRestauranteUsecase listarUsuariosPorRestauranteUsecase;
+
+    @Mock
+    private DesativarUsuarioUsecase desativarUsuarioUsecase;
 
     @Mock
     private CriarRestauranteUsecase criarRestauranteUsecase;
@@ -184,6 +205,30 @@ class InjecaoDependenciaConfigurationTest {
                 buscarItemCardapioPorIdUsecase,
                 listarItensCardapioUsecase,
                 desativarItemCardapioUsecase
+        );
+        assertThat(controller).isNotNull();
+    }
+
+    @Test
+    @DisplayName("Deve instanciar use cases de Usuario")
+    void deveInstanciarUseCasesUsuario() {
+        assertThat(configuration.criarUsuarioUsecase(usuarioGateway, tipoUsuarioGateway, restauranteGateway)).isNotNull();
+        assertThat(configuration.atualizarUsuarioUsecase(usuarioGateway, tipoUsuarioGateway, restauranteGateway)).isNotNull();
+        assertThat(configuration.buscarUsuarioPorIdUsecase(usuarioGateway)).isNotNull();
+        assertThat(configuration.listarUsuariosPorRestauranteUsecase(usuarioGateway, restauranteGateway)).isNotNull();
+        assertThat(configuration.desativarUsuarioUsecase(usuarioGateway)).isNotNull();
+    }
+
+    @Test
+    @DisplayName("Deve instanciar UsuarioController com suas dependências")
+    void deveInstanciarUsuarioController() {
+        UsuarioController controller = configuration.usuarioController(
+                criarUsuarioUsecase,
+                atualizarUsuarioUsecase,
+                buscarUsuarioPorIdUsecase,
+                listarUsuariosPorRestauranteUsecase,
+                desativarUsuarioUsecase,
+                associarTipoUsuarioUsecase
         );
         assertThat(controller).isNotNull();
     }

@@ -40,4 +40,6 @@ public interface UsuarioGateway {
 
     void desativar(UUID restauranteId, UUID usuarioId);
 
+    void desativar(UUID usuarioId);
+
 }
