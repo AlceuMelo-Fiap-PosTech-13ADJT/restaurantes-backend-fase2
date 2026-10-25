@@ -25,7 +25,7 @@ public interface UsuarioRepository extends JpaRepository<UsuarioEntity, UUID> {
 
     Optional<UsuarioEntity> findByEmailIgnoreCaseAndRestauranteIdAndAtivoTrue(String email, UUID restauranteId);
 
-    Optional<UsuarioEntity> findByRestauranteIdAndTipoUsuario_TipoAndAtivoTrue(UUID restauranteId, TipoUsuarioEnum tipo);
+    Optional<UsuarioEntity> findFirstByRestauranteIdAndTipoUsuario_TipoAndAtivoTrue(UUID restauranteId, TipoUsuarioEnum tipo);
 
     List<UsuarioEntity> findByRestauranteId(UUID restauranteId);
 
