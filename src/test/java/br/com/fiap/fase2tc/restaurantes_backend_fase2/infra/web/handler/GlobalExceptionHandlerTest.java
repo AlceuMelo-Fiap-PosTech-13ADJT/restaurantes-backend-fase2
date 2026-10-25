@@ -2,13 +2,22 @@ package br.com.fiap.fase2tc.restaurantes_backend_fase2.infra.web.handler;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.UUID;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.mock.http.MockHttpInputMessage;
+import org.springframework.validation.BeanPropertyBindingResult;
+import org.springframework.validation.FieldError;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingRequestHeaderException;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.exception.AcessoNaoAutorizadoException;
 import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.exception.DonoRestauranteInvalidoException;
@@ -87,6 +96,59 @@ class GlobalExceptionHandlerTest {
         assertThat(response.getBody()).isNotNull();
         assertThat(response.getBody().getStatus()).isEqualTo(400);
         assertThat(response.getBody().getMensagem()).contains("usuario-logado-id");
+    }
+
+    @Test
+    @DisplayName("Deve retornar 400 BAD_REQUEST com lista de erros para MethodArgumentNotValidException")
+    void deveRetornar400Validacao() throws NoSuchMethodException {
+        var method = this.getClass().getDeclaredMethod("setUp");
+        var parameter = new MethodParameter(method, -1);
+        var bindingResult = new BeanPropertyBindingResult(new Object(), "objeto");
+        bindingResult.addError(new FieldError("objeto", "nome", "não pode ser vazio"));
+        var ex = new MethodArgumentNotValidException(parameter, bindingResult);
+
+        ResponseEntity<ErroResponseJson> response = handler.handleValidacao(ex);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody().getStatus()).isEqualTo(400);
+        assertThat(response.getBody().getErros()).containsExactly("nome: não pode ser vazio");
+    }
+
+    @Test
+    @DisplayName("Deve retornar 400 BAD_REQUEST para HttpMessageNotReadableException")
+    void deveRetornar400MensagemNaoLegivel() {
+        var ex = new HttpMessageNotReadableException("JSON malformado", new MockHttpInputMessage(new byte[0]));
+        ResponseEntity<ErroResponseJson> response = handler.handleMensagemNaoLegivel(ex);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody().getStatus()).isEqualTo(400);
+        assertThat(response.getBody().getMensagem()).contains("Corpo da requisição inválido ou mal formatado.");
+    }
+
+    @Test
+    @DisplayName("Deve retornar 400 BAD_REQUEST para MethodArgumentTypeMismatchException")
+    void deveRetornar400TipoInvalido() {
+        var ex = new MethodArgumentTypeMismatchException("abc", UUID.class, "id", null, new IllegalArgumentException());
+        ResponseEntity<ErroResponseJson> response = handler.handleTipoInvalido(ex);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody().getStatus()).isEqualTo(400);
+        assertThat(response.getBody().getMensagem()).contains("id").contains("UUID");
+    }
+
+    @Test
+    @DisplayName("Deve retornar 405 METHOD_NOT_ALLOWED para HttpRequestMethodNotSupportedException")
+    void deveRetornar405MetodoNaoSuportado() {
+        var ex = new HttpRequestMethodNotSupportedException("PATCH");
+        ResponseEntity<ErroResponseJson> response = handler.handleMetodoNaoSuportado(ex);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.METHOD_NOT_ALLOWED);
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody().getStatus()).isEqualTo(405);
+        assertThat(response.getBody().getMensagem()).contains("PATCH");
     }
 
     @Test
