@@ -1,0 +1,2067 @@
+{
+  "info": {
+    "_postman_id": "9b12a845-fce1-4a1e-8433-e7bc9f872101",
+    "name": "Restaurantes API - Fase 2 (Clean Architecture)",
+    "description": "Postman Collection cobrindo 100% dos endpoints da API Restaurantes Fase 2.\n\n### Características Principais:\n- **Arquitetura**: Clean Architecture em Java com Spring Boot 3.\n- **Identificadores**: 100% UUID em todas as rotas e cabeçalhos.\n- **Autenticação/Controle de Acesso**: Header obrigatório `usuario-logado-id` (sem Spring Security).\n- **Isolamento Multi-tenant**: Operações segregadas por `restaurante_id`.\n- **Soft Delete & Auditoria**: Exclusões lógicas preservando integridade.\n- **Idempotência**: Requisições dinâmicas seguras para repetição contínua no Collection Runner e Newman.\n",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "type": "string",
+      "description": "URL base da API REST"
+    },
+    {
+      "key": "usuarioLogadoId",
+      "value": "b1a0f443-4318-4720-bd44-df41865c1001",
+      "type": "string",
+      "description": "ID padrão do operador enviado no header usuario-logado-id (Carlos Silva - Dono R1)"
+    },
+    {
+      "key": "donoR1Id",
+      "value": "b1a0f443-4318-4720-bd44-df41865c1001",
+      "type": "string",
+      "description": "UUID do Dono do Restaurante 1 (Carlos Silva)"
+    },
+    {
+      "key": "clienteR1Id",
+      "value": "b1a0f443-4318-4720-bd44-df41865c1002",
+      "type": "string",
+      "description": "UUID de Cliente do Restaurante 1 (Mariana Costa)"
+    },
+    {
+      "key": "donoR2Id",
+      "value": "b1a0f443-4318-4720-bd44-df41865c1003",
+      "type": "string",
+      "description": "UUID do Dono do Restaurante 2 (Jose Santos)"
+    },
+    {
+      "key": "clienteR2Id",
+      "value": "b1a0f443-4318-4720-bd44-df41865c1004",
+      "type": "string",
+      "description": "UUID de Cliente do Restaurante 2 (Fernanda Lima)"
+    },
+    {
+      "key": "restauranteR1Id",
+      "value": "c3b01f92-563b-4f68-b7e1-88892df9a001",
+      "type": "string",
+      "description": "UUID do Restaurante 1 (Cantina Bella Roma)"
+    },
+    {
+      "key": "restauranteR2Id",
+      "value": "c3b01f92-563b-4f68-b7e1-88892df9a002",
+      "type": "string",
+      "description": "UUID do Restaurante 2 (Sabor do Sertão)"
+    },
+    {
+      "key": "tipoUsuarioDonoId",
+      "value": "e1a8a992-1262-4f0e-b8d2-1c6d860d5b01",
+      "type": "string",
+      "description": "UUID do Tipo de Usuário: Dono de restaurante (DONO_RESTAURANTE)"
+    },
+    {
+      "key": "tipoUsuarioClienteId",
+      "value": "e1a8a992-1262-4f0e-b8d2-1c6d860d5b02",
+      "type": "string",
+      "description": "UUID do Tipo de Usuário: Cliente (CLIENTE)"
+    },
+    {
+      "key": "itemCardapioR1Id",
+      "value": "f4c02a83-674c-4e79-c8f2-99903ef0b001",
+      "type": "string",
+      "description": "UUID do Item do Cardápio de R1 (Pizza Margherita)"
+    },
+    {
+      "key": "itemCardapioR2Id",
+      "value": "f4c02a83-674c-4e79-c8f2-99903ef0b003",
+      "type": "string",
+      "description": "UUID do Item do Cardápio de R2 (Baião de Dois Especial)"
+    },
+    {
+      "key": "novoTipoUsuarioId",
+      "value": "",
+      "type": "string",
+      "description": "UUID armazenado dinamicamente ao criar Tipo de Usuário"
+    },
+    {
+      "key": "novoUsuarioId",
+      "value": "",
+      "type": "string",
+      "description": "UUID armazenado dinamicamente ao cadastrar Usuário"
+    },
+    {
+      "key": "novoRestauranteId",
+      "value": "",
+      "type": "string",
+      "description": "UUID armazenado dinamicamente ao cadastrar Restaurante"
+    },
+    {
+      "key": "novoItemId",
+      "value": "",
+      "type": "string",
+      "description": "UUID armazenado dinamicamente ao cadastrar Item no Cardápio"
+    }
+  ],
+  "item": [
+    {
+      "name": "Tipos de Usuario",
+      "description": "Endpoints para gerenciamento de Tipos de Usuário (subtipos aceitos: 'Dono de restaurante' e 'Cliente' baseados no enum TipoUsuarioEnum) e vinculação a usuários.",
+      "item": [
+        {
+          "name": "1. Listar Tipos de Usuário",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "usuario-logado-id",
+                "value": "{{donoR1Id}}",
+                "type": "text",
+                "description": "UUID do operador logado"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/tipos-usuario",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "tipos-usuario"
+              ]
+            },
+            "description": "Retorna todos os tipos de usuário ativos cadastrados no sistema."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code é 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Retorna lista de tipos de usuário\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.be.an(\"array\");",
+                  "    pm.expect(jsonData.length).to.be.at.least(2);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "2. Buscar Tipo de Usuário por ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "usuario-logado-id",
+                "value": "{{donoR1Id}}",
+                "type": "text",
+                "description": "UUID do operador logado"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/tipos-usuario/{{tipoUsuarioDonoId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "tipos-usuario",
+                "{{tipoUsuarioDonoId}}"
+              ]
+            },
+            "description": "Consulta os detalhes de um tipo de usuário pelo seu UUID."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code é 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Tipo retornado corresponde a Dono de restaurante\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.id).to.eql(pm.collectionVariables.get(\"tipoUsuarioDonoId\"));",
+                  "    pm.expect(jsonData.nome).to.eql(\"Dono de restaurante\");",
+                  "    pm.expect(jsonData.tipo).to.eql(\"DONO_RESTAURANTE\");",
+                  "    pm.expect(jsonData.ativo).to.eql(true);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "3. Cadastrar Tipo de Usuário (Cliente)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "usuario-logado-id",
+                "value": "{{donoR1Id}}",
+                "type": "text",
+                "description": "UUID do operador logado"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/tipos-usuario",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "tipos-usuario"
+              ]
+            },
+            "description": "Cadastra um tipo de usuário ou valida duplicidade caso o tipo já esteja registrado no banco de dados.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Cliente\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code é 201 Created ou 422 Unprocessable Entity\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([201, 422]);",
+                  "});",
+                  "",
+                  "pm.test(\"Tipo de usuário criado ou validação de duplicidade confirmada\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    if (pm.response.code === 201) {",
+                  "        pm.expect(jsonData.id).to.not.be.null;",
+                  "        pm.expect(jsonData.nome).to.eql(\"Cliente\");",
+                  "        pm.expect(jsonData.tipo).to.eql(\"CLIENTE\");",
+                  "        pm.collectionVariables.set(\"novoTipoUsuarioId\", jsonData.id);",
+                  "    } else {",
+                  "        pm.expect(jsonData.status).to.eql(422);",
+                  "        pm.expect(jsonData.mensagem).to.include(\"Tipo de usuário já cadastrado\");",
+                  "    }",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "4. Atualizar Tipo de Usuário",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "usuario-logado-id",
+                "value": "{{donoR1Id}}",
+                "type": "text",
+                "description": "UUID do operador logado"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/tipos-usuario/{{tipoUsuarioClienteId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "tipos-usuario",
+                "{{tipoUsuarioClienteId}}"
+              ]
+            },
+            "description": "Atualiza um tipo de usuário existente informando um subtipo válido do enum.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Cliente\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code é 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Tipo atualizado com sucesso\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.id).to.eql(pm.collectionVariables.get(\"tipoUsuarioClienteId\"));",
+                  "    pm.expect(jsonData.nome).to.eql(\"Cliente\");",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "5. Desativar Tipo de Usuário (Soft Delete)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "usuario-logado-id",
+                "value": "{{donoR1Id}}",
+                "type": "text",
+                "description": "UUID do operador logado"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/tipos-usuario/{{targetTipoUsuarioParaDesativarId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "tipos-usuario",
+                "{{targetTipoUsuarioParaDesativarId}}"
+              ]
+            },
+            "description": "Executa o soft delete de um tipo de usuário temporário criado para testes sem afetar os seeds essenciais."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var targetId = pm.collectionVariables.get(\"novoTipoUsuarioId\") || \"00000000-0000-0000-0000-000000000000\";",
+                  "pm.variables.set(\"targetTipoUsuarioParaDesativarId\", targetId);"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code é 204 No Content ou 404 Not Found\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([204, 404]);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "6. Associar Tipo ao Usuário (via Tipos de Usuário API)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "usuario-logado-id",
+                "value": "{{donoR1Id}}",
+                "type": "text",
+                "description": "UUID do operador logado"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/tipos-usuario/usuarios/{{clienteR2Id}}/associar",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "tipos-usuario",
+                "usuarios",
+                "{{clienteR2Id}}",
+                "associar"
+              ]
+            },
+            "description": "Associa um novo perfil/tipo de usuário ao usuário através do endpoint de TipoUsuarioApi de forma idempotente.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tipoUsuarioId\": \"{{tipoParaAssociarId}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var baseUrl = pm.collectionVariables.get(\"baseUrl\");",
+                  "var userId = pm.collectionVariables.get(\"clienteR2Id\");",
+                  "var opId = pm.collectionVariables.get(\"donoR1Id\");",
+                  "var donoTipoId = pm.collectionVariables.get(\"tipoUsuarioDonoId\");",
+                  "var clienteTipoId = pm.collectionVariables.get(\"tipoUsuarioClienteId\");",
+                  "",
+                  "pm.sendRequest({",
+                  "    url: baseUrl + \"/v1/usuarios/\" + userId,",
+                  "    method: \"GET\",",
+                  "    header: { \"usuario-logado-id\": opId }",
+                  "}, function (err, res) {",
+                  "    if (!err && res.code === 200) {",
+                  "        var u = res.json();",
+                  "        var targetTipo = (u.tipoUsuarioId === donoTipoId) ? clienteTipoId : donoTipoId;",
+                  "        pm.variables.set(\"tipoParaAssociarId\", targetTipo);",
+                  "    } else {",
+                  "        pm.variables.set(\"tipoParaAssociarId\", donoTipoId);",
+                  "    }",
+                  "});"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code é 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Tipo associado com sucesso\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.id).to.eql(pm.collectionVariables.get(\"clienteR2Id\"));",
+                  "    pm.expect(jsonData.tipoUsuarioId).to.eql(pm.variables.get(\"tipoParaAssociarId\"));",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Usuarios",
+      "description": "Endpoints para gerenciamento de Usuários, listagem por restaurante (multi-tenancy) e associação de perfis.",
+      "item": [
+        {
+          "name": "1. Cadastrar Novo Usuário",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "usuario-logado-id",
+                "value": "{{donoR1Id}}",
+                "type": "text",
+                "description": "UUID do operador logado"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/usuarios",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "usuarios"
+              ]
+            },
+            "description": "Cadastra um novo usuário com dados únicos e dinâmicos para execução idempotente no Collection Runner.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"{{novoUserNome}}\",\n  \"email\": \"{{novoUserEmail}}\",\n  \"tipoUsuarioId\": \"{{tipoUsuarioDonoId}}\",\n  \"restauranteId\": \"{{restauranteR1Id}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var ts = Date.now();",
+                  "pm.variables.set(\"novoUserEmail\", \"souschef.\" + ts + \"@bellanapoli.com\");",
+                  "pm.variables.set(\"novoUserNome\", \"Sous Chef Postman \" + ts);"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code é 201 Created\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"Usuário cadastrado com sucesso\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.id).to.not.be.null;",
+                  "    pm.expect(jsonData.email).to.eql(pm.variables.get(\"novoUserEmail\"));",
+                  "    pm.expect(jsonData.restauranteId).to.eql(pm.collectionVariables.get(\"restauranteR1Id\"));",
+                  "    pm.collectionVariables.set(\"novoUsuarioId\", jsonData.id);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "2. Buscar Usuário por ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "usuario-logado-id",
+                "value": "{{donoR1Id}}",
+                "type": "text",
+                "description": "UUID do operador logado"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/usuarios/{{donoR1Id}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "usuarios",
+                "{{donoR1Id}}"
+              ]
+            },
+            "description": "Busca os detalhes de um usuário específico por UUID."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code é 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Dados do usuário conferem\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.id).to.eql(pm.collectionVariables.get(\"donoR1Id\"));",
+                  "    pm.expect(jsonData.nome).to.include(\"Carlos Silva\");",
+                  "    pm.expect(jsonData.ativo).to.eql(true);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "3. Listar Usuários por Restaurante",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "usuario-logado-id",
+                "value": "{{donoR1Id}}",
+                "type": "text",
+                "description": "UUID do operador logado"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/usuarios/restaurante/{{restauranteR1Id}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "usuarios",
+                "restaurante",
+                "{{restauranteR1Id}}"
+              ]
+            },
+            "description": "Lista todos os usuários ativos vinculados a um restaurante específico, validando o isolamento multi-tenant."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code é 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Retorna lista de usuários do restaurante\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.be.an(\"array\");",
+                  "    jsonData.forEach(function(u) {",
+                  "        pm.expect(u.restauranteId).to.eql(pm.collectionVariables.get(\"restauranteR1Id\"));",
+                  "    });",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "4. Atualizar Usuário",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "usuario-logado-id",
+                "value": "{{donoR1Id}}",
+                "type": "text",
+                "description": "UUID do operador logado"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/usuarios/{{targetUsuarioParaAtualizarId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "usuarios",
+                "{{targetUsuarioParaAtualizarId}}"
+              ]
+            },
+            "description": "Atualiza os dados cadastrais do novo usuário criado na execução.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"{{updateUserNome}}\",\n  \"email\": \"{{updateUserEmail}}\",\n  \"tipoUsuarioId\": \"{{tipoUsuarioDonoId}}\",\n  \"restauranteId\": \"{{restauranteR1Id}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var targetUser = pm.collectionVariables.get(\"novoUsuarioId\") || \"00000000-0000-0000-0000-000000000000\";",
+                  "pm.variables.set(\"targetUsuarioParaAtualizarId\", targetUser);",
+                  "var ts = Date.now();",
+                  "pm.variables.set(\"updateUserEmail\", \"souschef.atualizado.\" + ts + \"@bellanapoli.com\");",
+                  "pm.variables.set(\"updateUserNome\", \"Sous Chef Postman Atualizado \" + ts);"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code é 200 OK ou 404 Not Found\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 404]);",
+                  "});",
+                  "",
+                  "pm.test(\"Usuário atualizado com sucesso\", function () {",
+                  "    if (pm.response.code === 200) {",
+                  "        var jsonData = pm.response.json();",
+                  "        pm.expect(jsonData.email).to.eql(pm.variables.get(\"updateUserEmail\"));",
+                  "    }",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "5. Associar Tipo de Usuário ao Usuário (via UsuarioApi)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "usuario-logado-id",
+                "value": "{{donoR1Id}}",
+                "type": "text",
+                "description": "UUID do operador logado"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/usuarios/{{targetUsuarioAssociarId}}/tipo-usuario",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "usuarios",
+                "{{targetUsuarioAssociarId}}",
+                "tipo-usuario"
+              ]
+            },
+            "description": "Vincula um tipo de usuário distinto ao novo usuário criado através do endpoint de UsuarioApi.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tipoUsuarioId\": \"{{tipoParaAssociarId}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var targetUser = pm.collectionVariables.get(\"novoUsuarioId\");",
+                  "if (targetUser) {",
+                  "    pm.variables.set(\"targetUsuarioAssociarId\", targetUser);",
+                  "    pm.variables.set(\"tipoParaAssociarId\", pm.collectionVariables.get(\"tipoUsuarioClienteId\"));",
+                  "} else {",
+                  "    pm.variables.set(\"targetUsuarioAssociarId\", pm.collectionVariables.get(\"donoR1Id\"));",
+                  "    pm.variables.set(\"tipoParaAssociarId\", pm.collectionVariables.get(\"tipoUsuarioClienteId\"));",
+                  "}"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code é 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Tipo de usuário associado com sucesso\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.tipoUsuarioId).to.eql(pm.variables.get(\"tipoParaAssociarId\"));",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "6. Desativar Usuário (Soft Delete)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "usuario-logado-id",
+                "value": "{{donoR1Id}}",
+                "type": "text",
+                "description": "UUID do operador logado"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/usuarios/{{targetUsuarioParaDesativarId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "usuarios",
+                "{{targetUsuarioParaDesativarId}}"
+              ]
+            },
+            "description": "Executa o soft delete exclusivamente do usuário dinâmico criado no teste, preservando todos os usuários de seed."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var targetId = pm.collectionVariables.get(\"novoUsuarioId\") || \"00000000-0000-0000-0000-000000000000\";",
+                  "pm.variables.set(\"targetUsuarioParaDesativarId\", targetId);"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code é 204 No Content ou 404 Not Found\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([204, 404]);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Restaurantes",
+      "description": "Endpoints para gerenciamento de Restaurantes, dados cadastrais, consulta e controle restrito de alterações ao Dono.",
+      "item": [
+        {
+          "name": "1. Cadastrar Novo Restaurante",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "usuario-logado-id",
+                "value": "{{donoR1Id}}",
+                "type": "text",
+                "description": "UUID do operador logado"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/restaurantes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "restaurantes"
+              ]
+            },
+            "description": "Cadastra um novo restaurante vinculado a um usuário com perfil Dono de restaurante.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"{{novoRestauranteNome}}\",\n  \"endereco\": \"Alameda Santos, 1200 - Jardins, Sao Paulo - SP\",\n  \"tipoCozinha\": \"Italiana Contemporanea\",\n  \"horarioFuncionamento\": \"12:00 as 23:00\",\n  \"donoId\": \"{{donoR1Id}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var ts = Date.now();",
+                  "pm.variables.set(\"novoRestauranteNome\", \"Trattoria Postman \" + ts);"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code é 201 Created\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"Restaurante cadastrado com UUID válido\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.id).to.not.be.null;",
+                  "    pm.collectionVariables.set(\"novoRestauranteId\", jsonData.id);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "2. Listar Todos os Restaurantes",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "usuario-logado-id",
+                "value": "{{donoR1Id}}",
+                "type": "text",
+                "description": "UUID do operador logado"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/restaurantes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "restaurantes"
+              ]
+            },
+            "description": "Retorna a listagem de todos os restaurantes ativos."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code é 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Retorna lista de restaurantes\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.be.an(\"array\");",
+                  "    pm.expect(jsonData.length).to.be.at.least(2);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "3. Buscar Restaurante por ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "usuario-logado-id",
+                "value": "{{donoR1Id}}",
+                "type": "text",
+                "description": "UUID do operador logado"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/restaurantes/{{restauranteR1Id}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "restaurantes",
+                "{{restauranteR1Id}}"
+              ]
+            },
+            "description": "Consulta os detalhes completos de um restaurante por UUID."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code é 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Dados do Restaurante 1 conferem\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.id).to.eql(pm.collectionVariables.get(\"restauranteR1Id\"));",
+                  "    pm.expect(jsonData.nome).to.include(\"Cantina Bella Roma\");",
+                  "    pm.expect(jsonData.donoId).to.eql(pm.collectionVariables.get(\"donoR1Id\"));",
+                  "    pm.expect(jsonData.tipoCozinha).to.include(\"Italiana\");",
+                  "    pm.expect(jsonData.ativo).to.eql(true);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "4. Atualizar Restaurante (Dono)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "usuario-logado-id",
+                "value": "{{donoR1Id}}",
+                "type": "text",
+                "description": "UUID do Dono legítimo"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/restaurantes/{{restauranteR1Id}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "restaurantes",
+                "{{restauranteR1Id}}"
+              ]
+            },
+            "description": "Atualiza os dados do restaurante. Operação autorizada porque o usuario-logado-id é o dono do estabelecimento.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Cantina Bella Roma - Matriz Jardins\",\n  \"endereco\": \"Rua Augusta, 100 - Cerqueira Cesar, Sao Paulo - SP\",\n  \"tipoCozinha\": \"Italiana Tradicional\",\n  \"horarioFuncionamento\": \"11:30 as 23:30\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code é 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Restaurante atualizado com sucesso\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.id).to.eql(pm.collectionVariables.get(\"restauranteR1Id\"));",
+                  "    pm.expect(jsonData.nome).to.eql(\"Cantina Bella Roma - Matriz Jardins\");",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "5. Desativar Restaurante (Dono - Soft Delete)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "usuario-logado-id",
+                "value": "{{donoR1Id}}",
+                "type": "text",
+                "description": "Dono do restaurante"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/restaurantes/{{targetRestauranteParaDesativarId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "restaurantes",
+                "{{targetRestauranteParaDesativarId}}"
+              ]
+            },
+            "description": "Executa o soft delete exclusivamente do restaurante dinâmico criado no teste, preservando os restaurantes de seed."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var targetId = pm.collectionVariables.get(\"novoRestauranteId\") || \"00000000-0000-0000-0000-000000000000\";",
+                  "pm.variables.set(\"targetRestauranteParaDesativarId\", targetId);"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code é 204 No Content ou 404 Not Found\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([204, 404]);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Cardapio",
+      "description": "Endpoints para gestão de itens do Cardápio de um restaurante. Criação, atualização e exclusão restritas ao Dono; consulta aberta a Clientes.",
+      "item": [
+        {
+          "name": "1. Adicionar Item ao Cardápio (Dono)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "usuario-logado-id",
+                "value": "{{donoR1Id}}",
+                "type": "text",
+                "description": "UUID do Dono do restaurante"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/restaurantes/{{restauranteR1Id}}/cardapio",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "restaurantes",
+                "{{restauranteR1Id}}",
+                "cardapio"
+              ]
+            },
+            "description": "Cadastra um novo prato dinâmico no cardápio de R1 pelo seu dono.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"{{novoItemNome}}\",\n  \"descricao\": \"Arroz arboreo cremoso com cogumelos funghi porcini italianos e manteiga trufada.\",\n  \"preco\": 68.9,\n  \"disponivelApenasRestaurante\": true,\n  \"fotoPath\": \"/imagens/cardapio/risoto-funghi.jpg\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var ts = Date.now();",
+                  "pm.variables.set(\"novoItemNome\", \"Risoto Funghi \" + ts);"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code é 201 Created\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"Item criado com sucesso\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.id).to.not.be.null;",
+                  "    pm.expect(jsonData.nome).to.eql(pm.variables.get(\"novoItemNome\"));",
+                  "    pm.expect(jsonData.restauranteId).to.eql(pm.collectionVariables.get(\"restauranteR1Id\"));",
+                  "    pm.expect(jsonData.preco).to.eql(68.90);",
+                  "    pm.collectionVariables.set(\"novoItemId\", jsonData.id);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "2. Listar Itens do Cardápio (Acesso por Cliente)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "usuario-logado-id",
+                "value": "{{clienteR1Id}}",
+                "type": "text",
+                "description": "UUID de Cliente (leitura permitida)"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/restaurantes/{{restauranteR1Id}}/cardapio",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "restaurantes",
+                "{{restauranteR1Id}}",
+                "cardapio"
+              ]
+            },
+            "description": "Consulta o cardápio ativo de um restaurante específico. Clientes têm permissão de consulta."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code é 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Retorna lista de pratos do cardápio\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.be.an(\"array\");",
+                  "    pm.expect(jsonData.length).to.be.at.least(1);",
+                  "    jsonData.forEach(function(item) {",
+                  "        pm.expect(item.restauranteId).to.eql(pm.collectionVariables.get(\"restauranteR1Id\"));",
+                  "    });",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "3. Buscar Item do Cardápio por ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "usuario-logado-id",
+                "value": "{{clienteR1Id}}",
+                "type": "text",
+                "description": "UUID do Cliente"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/restaurantes/{{restauranteR1Id}}/cardapio/{{itemCardapioR1Id}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "restaurantes",
+                "{{restauranteR1Id}}",
+                "cardapio",
+                "{{itemCardapioR1Id}}"
+              ]
+            },
+            "description": "Consulta os detalhes de um item específico do cardápio."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code é 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Item do cardápio confere\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.id).to.eql(pm.collectionVariables.get(\"itemCardapioR1Id\"));",
+                  "    pm.expect(jsonData.nome).to.eql(\"Pizza Margherita\");",
+                  "    pm.expect(jsonData.restauranteId).to.eql(pm.collectionVariables.get(\"restauranteR1Id\"));",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "4. Atualizar Item do Cardápio (Dono)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "usuario-logado-id",
+                "value": "{{donoR1Id}}",
+                "type": "text",
+                "description": "Dono do restaurante"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/restaurantes/{{restauranteR1Id}}/cardapio/{{targetItemParaAtualizarId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "restaurantes",
+                "{{restauranteR1Id}}",
+                "cardapio",
+                "{{targetItemParaAtualizarId}}"
+              ]
+            },
+            "description": "Atualiza um prato do cardápio. Operação autorizada para o Dono do restaurante.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Risoto de Funghi Porcini Especial\",\n  \"descricao\": \"Arroz arboreo italiano com selecao especial de funghi porcini e azeite trufado.\",\n  \"preco\": 74.0,\n  \"disponivelApenasRestaurante\": false,\n  \"fotoPath\": \"/imagens/cardapio/risoto-funghi-especial.jpg\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var targetItem = pm.collectionVariables.get(\"novoItemId\") || pm.collectionVariables.get(\"itemCardapioR1Id\");",
+                  "pm.variables.set(\"targetItemParaAtualizarId\", targetItem);"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code é 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Item atualizado com sucesso\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.nome).to.eql(\"Risoto de Funghi Porcini Especial\");",
+                  "    pm.expect(jsonData.preco).to.eql(74.00);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "5. Desativar Item do Cardápio (Dono - Soft Delete)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "usuario-logado-id",
+                "value": "{{donoR1Id}}",
+                "type": "text",
+                "description": "Dono do restaurante"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/restaurantes/{{restauranteR1Id}}/cardapio/{{targetItemParaDesativarId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "restaurantes",
+                "{{restauranteR1Id}}",
+                "cardapio",
+                "{{targetItemParaDesativarId}}"
+              ]
+            },
+            "description": "Executa o soft delete exclusivamente do item dinâmico criado no teste, preservando os itens de seed."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var targetId = pm.collectionVariables.get(\"novoItemId\") || \"00000000-0000-0000-0000-000000000000\";",
+                  "pm.variables.set(\"targetItemParaDesativarId\", targetId);"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code é 204 No Content ou 404 Not Found\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([204, 404]);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Cenários de erro e validação",
+      "description": "Cenários de validação de regras de negócio, segurança (sem Spring Security), multi-tenancy, validação de payloads Jakarta e status HTTP semânticos (400, 403, 404, 422).",
+      "item": [
+        {
+          "name": "1. Erro 400 - Header usuario-logado-id Ausente",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1/restaurantes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "restaurantes"
+              ]
+            },
+            "description": "Valida que requisições sem o cabeçalho obrigatório usuario-logado-id são rejeitadas com 400 Bad Request."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code é 400 Bad Request\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "pm.test(\"Mensagem indica cabeçalho ausente\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.status).to.eql(400);",
+                  "    pm.expect(jsonData.mensagem).to.include(\"usuario-logado-id\");",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "2. Erro 400 - Payload com Campos Obrigatórios Inválidos",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "usuario-logado-id",
+                "value": "{{donoR1Id}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/restaurantes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "restaurantes"
+              ]
+            },
+            "description": "Valida que requisições com campos vazios obrigatórios disparam Bean Validation e retornam 400 Bad Request com lista de erros detalhada.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"\",\n  \"endereco\": \"\",\n  \"tipoCozinha\": \"\",\n  \"horarioFuncionamento\": \"\",\n  \"donoId\": null\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code é 400 Bad Request\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "pm.test(\"Retorna lista de erros de validação de campos\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.status).to.eql(400);",
+                  "    pm.expect(jsonData.erros).to.be.an(\"array\");",
+                  "    pm.expect(jsonData.erros.length).to.be.at.least(1);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "3. Erro 400 - Formato de UUID Inválido na URL",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "usuario-logado-id",
+                "value": "{{donoR1Id}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/restaurantes/nao-e-um-uuid-valido",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "restaurantes",
+                "nao-e-um-uuid-valido"
+              ]
+            },
+            "description": "Valida que parâmetros de rota que não conformam com o padrão UUID retornam 400 Bad Request."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code é 400 Bad Request\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "pm.test(\"Mensagem indica formato inválido de identificador UUID\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.status).to.eql(400);",
+                  "    pm.expect(jsonData.mensagem).to.include(\"UUID\");",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "4. Erro 403 - Cliente Tentando Cadastrar Restaurante",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "usuario-logado-id",
+                "value": "{{clienteR1Id}}",
+                "type": "text",
+                "description": "Operador é Cliente"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/restaurantes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "restaurantes"
+              ]
+            },
+            "description": "Apenas usuários com perfil Dono de restaurante podem ser vinculados como dono na criação.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Restaurante Ilegal do Cliente\",\n  \"endereco\": \"Rua Augusta, 999\",\n  \"tipoCozinha\": \"Variada\",\n  \"horarioFuncionamento\": \"10:00 as 22:00\",\n  \"donoId\": \"{{clienteR1Id}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code é 403 Forbidden\", function () {",
+                  "    pm.response.to.have.status(403);",
+                  "});",
+                  "",
+                  "pm.test(\"Mensagem indica erro 403 de autorização\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.status).to.eql(403);",
+                  "    pm.expect(jsonData.mensagem).to.be.a(\"string\");",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "5. Erro 403 - Usuário Não-Dono Tentando Alterar Restaurante",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "usuario-logado-id",
+                "value": "{{clienteR1Id}}",
+                "type": "text",
+                "description": "Cliente tentando alterar restaurante"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/restaurantes/{{restauranteR1Id}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "restaurantes",
+                "{{restauranteR1Id}}"
+              ]
+            },
+            "description": "Alterações cadastrais no restaurante são exclusivas do Dono registrado.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Tentativa Invasiva de Alteração\",\n  \"endereco\": \"Rua Augusta, 100\",\n  \"tipoCozinha\": \"Italiana\",\n  \"horarioFuncionamento\": \"11:00 as 22:00\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code é 403 Forbidden\", function () {",
+                  "    pm.response.to.have.status(403);",
+                  "});",
+                  "",
+                  "pm.test(\"Mensagem indica erro 403 de acesso não autorizado\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.status).to.eql(403);",
+                  "    pm.expect(jsonData.mensagem).to.be.a(\"string\");",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "6. Erro 403 - Cliente Tentando Adicionar Item ao Cardápio",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "usuario-logado-id",
+                "value": "{{clienteR1Id}}",
+                "type": "text",
+                "description": "Cliente tentando adicionar prato"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/restaurantes/{{restauranteR1Id}}/cardapio",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "restaurantes",
+                "{{restauranteR1Id}}",
+                "cardapio"
+              ]
+            },
+            "description": "Clientes têm permissão apenas para consultar o cardápio, nunca cadastrar ou editar.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Prato Não Permitido\",\n  \"descricao\": \"Tentativa de inserção de item por cliente\",\n  \"preco\": 35.0,\n  \"disponivelApenasRestaurante\": false,\n  \"fotoPath\": \"/teste.jpg\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code é 403 Forbidden\", function () {",
+                  "    pm.response.to.have.status(403);",
+                  "});",
+                  "",
+                  "pm.test(\"Mensagem indica erro 403 de acesso não autorizado\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.status).to.eql(403);",
+                  "    pm.expect(jsonData.mensagem).to.be.a(\"string\");",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "7. Erro 403 - Isolamento Multi-tenant (Dono R2 Tentando Modificar Cardápio de R1)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "usuario-logado-id",
+                "value": "{{donoR2Id}}",
+                "type": "text",
+                "description": "Dono do Restaurante 2"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/restaurantes/{{restauranteR1Id}}/cardapio",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "restaurantes",
+                "{{restauranteR1Id}}",
+                "cardapio"
+              ]
+            },
+            "description": "Valida o isolamento multi-restaurante estrito: dono do restaurante R2 não pode manipular itens de R1.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Invasão de Cardápio Cross-tenant\",\n  \"descricao\": \"Dono de R2 tentando manipular o cardápio de R1\",\n  \"preco\": 55.0,\n  \"disponivelApenasRestaurante\": false,\n  \"fotoPath\": \"/invasao.jpg\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code é 403 Forbidden\", function () {",
+                  "    pm.response.to.have.status(403);",
+                  "});",
+                  "",
+                  "pm.test(\"Acesso negado por isolamento multi-tenant\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.status).to.eql(403);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "8. Erro 404 - Restaurante Inexistente",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "usuario-logado-id",
+                "value": "{{donoR1Id}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/restaurantes/00000000-0000-0000-0000-000000000000",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "restaurantes",
+                "00000000-0000-0000-0000-000000000000"
+              ]
+            },
+            "description": "Consulta por restaurante com UUID inexistente retorna 404 Not Found."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code é 404 Not Found\", function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});",
+                  "",
+                  "pm.test(\"Mensagem indica recurso não encontrado\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.status).to.eql(404);",
+                  "    pm.expect(jsonData.mensagem).to.include(\"não encontrado\");",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "9. Erro 404 - Item do Cardápio Inexistente",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "usuario-logado-id",
+                "value": "{{donoR1Id}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/restaurantes/{{restauranteR1Id}}/cardapio/00000000-0000-0000-0000-000000000000",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "restaurantes",
+                "{{restauranteR1Id}}",
+                "cardapio",
+                "00000000-0000-0000-0000-000000000000"
+              ]
+            },
+            "description": "Consulta por item do cardápio com UUID inexistente retorna 404 Not Found."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code é 404 Not Found\", function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});",
+                  "",
+                  "pm.test(\"Mensagem indica item não encontrado\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.status).to.eql(404);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "10. Erro 404 - Usuário Inexistente",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "usuario-logado-id",
+                "value": "{{donoR1Id}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/usuarios/00000000-0000-0000-0000-000000000000",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "usuarios",
+                "00000000-0000-0000-0000-000000000000"
+              ]
+            },
+            "description": "Consulta por usuário com UUID inexistente retorna 404 Not Found."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code é 404 Not Found\", function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});",
+                  "",
+                  "pm.test(\"Mensagem indica usuário não encontrado\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.status).to.eql(404);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "11. Erro 422 - Subtipo de Usuário Não Permitido",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "usuario-logado-id",
+                "value": "{{donoR1Id}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/tipos-usuario",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "tipos-usuario"
+              ]
+            },
+            "description": "Validação de TipoUsuarioEnum: apenas 'Dono de restaurante' ou 'Cliente' são aceitos.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"SUBTIPO_INVALIDO\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code é 422 Unprocessable Entity\", function () {",
+                  "    pm.response.to.have.status(422);",
+                  "});",
+                  "",
+                  "pm.test(\"Mensagem indica tipo inválido no enum\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.status).to.eql(422);",
+                  "    pm.expect(jsonData.mensagem).to.include(\"Tipo de usuário inválido\");",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "12. Erro 422 - E-mail Duplicado no Cadastro de Usuário",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "usuario-logado-id",
+                "value": "{{donoR1Id}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/usuarios",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "usuarios"
+              ]
+            },
+            "description": "Regra de unicidade de e-mail em usuários ativos retorna 422 Unprocessable Entity.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Carlos Silva Clone\",\n  \"email\": \"carlos.silva@bellanapoli.com\",\n  \"tipoUsuarioId\": \"{{tipoUsuarioDonoId}}\",\n  \"restauranteId\": \"{{restauranteR1Id}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code é 422 Unprocessable Entity\", function () {",
+                  "    pm.response.to.have.status(422);",
+                  "});",
+                  "",
+                  "pm.test(\"Mensagem indica e-mail já cadastrado\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.status).to.eql(422);",
+                  "    pm.expect(jsonData.mensagem).to.include(\"e-mail\");",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
