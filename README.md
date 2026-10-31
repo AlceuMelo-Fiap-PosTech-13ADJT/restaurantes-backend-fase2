@@ -11,11 +11,11 @@
 ![Postman](https://img.shields.io/badge/Postman-%23FF6C37.svg?style=flat&logo=postman&logoColor=white)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue)](https://opensource.org/licenses/MIT)
 
-> **Pós Tech em Arquitetura e Desenvolvimento em JAVA — FIAP**  
+> **Pós Tech em Arquitetura e Desenvolvimento em JAVA - FIAP**  
 > Projeto desenvolvido como requisito e instrumento de avaliação para o **Tech Challenge da Fase 2**  
-> **Turma**: 13ADJT  
-> **Grupo**: 9  
-> **Integrante**(1): Alceu Luís de Andrade Melo
+> Turma **13ADJT**  
+> Grupo **9**  
+> ... Integrantes (1) : Alceu Luís de Andrade Melo
 
 ---
 
@@ -34,7 +34,7 @@
 10. [Testes Automatizados e Cobertura (JUnit 5 + JaCoCo)](#-testes-automatizados-e-cobertura-junit-5--jacoco)
 11. [Catálogo Completo de Endpoints da API](#-catálogo-completo-de-endpoints-da-api)
 12. [Tratamento Global de Erros e Exceções](#-tratamento-global-de-erros-e-exceções)
-13. [Licença e Autoria](#-licença-e-autoria)
+13. [Licença](#-licença)
 
 ---
 
@@ -407,17 +407,6 @@ O tratamento de exceções é centralizado no `GlobalExceptionHandler` (`infra.c
   ]
 }
 ```
-
----
-
-## 👥 Integrantes e Dados de Avaliação
-
-- **Instituição**: FIAP — Pós Tech em Arquitetura e Desenvolvimento em JAVA
-- **Curso**: Pós-Graduação Lato Sensu
-- **Fase**: Fase 2 — Tech Challenge
-- **Turma**: 13ADJT
-- **Grupo**: 30
-- **Integrante**: Alceu Luís de Andrade Melo
 
 ---
 
