@@ -1,4 +1,4 @@
-# Restaurantes Backend API — Tech Challenge Fase 2
+﻿# Restaurantes Backend API — Tech Challenge Fase 2
 
 ![Java](https://img.shields.io/badge/Java-%23F29111.svg?style=flat&logo=openjdk&logoColor=white)
 ![Spring Boot](https://img.shields.io/badge/Spring-%236db33f.svg?style=flat&logo=spring&logoColor=white)
@@ -57,13 +57,13 @@ O **Restaurantes Backend** é uma API REST desenvolvida em **Java com Spring Boo
 | Componente | Tecnologia | Detalhes |
 | :--- | :--- | :--- |
 | **Linguagem** | Java 21 LTS | Versão LTS moderna com suporte a Pattern Matching e Records |
-| **Framework Base** | Spring Boot 3.x | Spring Web MVC, Spring Data JPA, Jakarta Bean Validation |
+| **Framework Base** | Spring Boot 3.x+ | Spring Web MVC, Spring Data JPA, Jakarta Bean Validation |
 | **Arquitetura** | Clean Architecture | Isolamento total do Core (independente de frameworks e JPA) |
 | **Banco de Dados (Dev/Testes)** | H2 Database | Em memória, modo MySQL (`jdbc:h2:mem:restaurantes_db;MODE=MySQL`) |
 | **Banco de Dados (Deploy/Prod)** | MySQL 8.x | Conteinerizado via Docker Compose com healthcheck nativo |
 | **Documentação da API** | Springdoc OpenAPI / Swagger | UI interativa em `/swagger-ui.html` e especificações OpenAPI v3 |
 | **Testes Automatizados** | JUnit 5 + Mockito + AssertJ | Testes unitários do Core e testes E2E com `MockMvc` |
-| **Cobertura de Código** | JaCoCo 0.8.12 | > 97% de cobertura (superando o critério obrigatório de 80%) |
+| **Cobertura de Código** | JaCoCo 0.8.13 | > 97% de cobertura (superando o critério obrigatório de 80%) |
 | **Postman Collection** | Postman v2.1 + Newman | 34 requisições, 64 asserções automatizadas, 100% idempotente |
 | **Containerização** | Docker & Docker Compose | Dockerfile multi-stage com imagem leve JRE |
 | **Produtividade** | Lombok | Redução de boilerplate em DTOs e entidades |
@@ -82,7 +82,7 @@ flowchart TD
 
         subgraph Adapters["Interface Adapters (Infraestrutura / Web / DB)"]
             direction TB
-            AD["• infra.web.api: REST Endpoints<br/>• infra.web.json: Request e Response JSON DTOs<br/>• infra.database.jpa: Gateways JPA, Entities, Repos<br/>• infra.database.mapper: Conversores Domain ↔ JPA<br/>• core.controller: Controladores Clean Architecture"]
+            AD["• infra.web.api: REST Endpoints<br/>• infra.web.json: Request e Response JSON DTOs<br/>• infra.database.jpa: Gateways JPA, Entities, Repos<br/>• infra.database.jpa.mapper: Conversores Domain ↔ JPA<br/>• core.controller: Controladores Clean Architecture"]
 
             subgraph Application["Application Business Rules (Use Cases)"]
                 direction TB
@@ -175,25 +175,25 @@ restaurantes-backend-fase2/
 │  │  │  │  ├─ gateway/                  # Contratos de persistência (SEM prefixo 'I')
 │  │  │  │  └─ usecase/                  # Casos de uso e regras de aplicação
 │  │  │  └─ infra/                       # Camadas externas (Interface Adapters e Frameworks)
-│  │  │     ├─ config/                   # Injeção manual de Beans e GlobalExceptionHandler
+│  │  │     ├─ config/                   # Injeção manual de Beans e configuração OpenAPI
 │  │  │     ├─ database/
 │  │  │     │  ├─ jpa/                   # Entidades JPA, Repositories e Gateways
-│  │  │     │  └─ mapper/                # Mapeadores entre Domínio e JPA
+│  │  │     │  └─ jpa/mapper/            # Mapeadores entre Domínio e JPA
 │  │  │     └─ web/
 │  │  │        ├─ api/                   # Endpoints REST (@RestController)
+│  │  │        ├─ handler/               # GlobalExceptionHandler (exceções → HTTP 4xx/5xx)
 │  │  │        └─ json/                  # Payloads Request e Response HTTP
 │  │  └─ resources/
-│  │     ├─ application.properties       # Configuração padrão do Spring Boot
-│  │     ├─ application-dev.properties   # Perfil local (H2 Database)
-│  │     ├─ application-prod.properties  # Perfil de produção/deploy (MySQL 8)
-│  │     ├─ schema.sql                   # Criação do schema DDL
-│  │     └─ data.sql                     # Carga inicial com dados e usuários de teste
+│  │     ├─ application.yml              # Configuração padrão e perfil dev (H2 em memória)
+│  │     ├─ application-prod.yml         # Perfil de produção/deploy (MySQL 8)
+│  │     └─ data.sql                     # Carga inicial (seeds) executada no H2 em dev; schema gerado pelo Hibernate
 │  └─ test/                              # Testes automatizados (Unitários e E2E)
 │     └─ java/br/com/fiap/fase2tc/restaurantes_backend_fase2/
 │        ├─ core/                        # Testes Unitários puros (UseCases e Domínio)
 │        └─ infra/                       # Testes de Integração E2E (@SpringBootTest com H2)
 ├─ Dockerfile                            # Multi-stage build para deploy otimizado
 ├─ docker-compose.yml                    # Orquestração da API e MySQL 8 com healthcheck
+├─ infra/scripts/init.sql                # Schema e seeds do MySQL 8 (Docker)
 ├─ pom.xml                               # Dependências Maven e plugin JaCoCo
 └─ README.md                             # Documentação técnica do projeto
 ```
@@ -210,7 +210,7 @@ restaurantes-backend-fase2/
 
 ### Opção 1: Execução Local com Maven (Desenvolvimento com H2)
 
-A aplicação utiliza por padrão o perfil `dev`, executando o banco **H2 Database em memória** configurado em compatibilidade com o MySQL. Os scripts `schema.sql` e `data.sql` são executados automaticamente na inicialização.
+A aplicação utiliza por padrão o perfil `dev`, executando o banco **H2 Database em memória** configurado em compatibilidade com o MySQL. O schema é gerado pelo Hibernate (`ddl-auto: create-drop`) e o `data.sql` com os seeds é executado automaticamente na inicialização.
 
 ```bash
 # Clone o repositório
@@ -381,7 +381,7 @@ Todas as operações protegidas exigem o cabeçalho HTTP: `usuario-logado-id: <U
 
 ## ⚠️ Tratamento Global de Erros e Exceções
 
-O tratamento de exceções é centralizado no `GlobalExceptionHandler` (`infra.config`), interceptando erros da camada web e exceções de negócio do domínio e convertendo-as em respostas padronizadas em JSON (`ErroResponseJson`):
+O tratamento de exceções é centralizado no `GlobalExceptionHandler` (`infra.web.handler`), interceptando erros da camada web e exceções de negócio do domínio e convertendo-as em respostas padronizadas em JSON (`ErroResponseJson`):
 
 | Exceção de Domínio / Infraestrutura | Código HTTP | Significado e Causa |
 | :--- | :---: | :--- |
