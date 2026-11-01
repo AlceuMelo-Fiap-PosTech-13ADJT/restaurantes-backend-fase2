@@ -140,12 +140,12 @@ class InjecaoDependenciaConfigurationTest {
     @Test
     @DisplayName("Deve instanciar use cases de TipoUsuario")
     void deveInstanciarUseCasesTipoUsuario() {
-        assertThat(configuration.criarTipoUsuarioUsecase(tipoUsuarioGateway)).isNotNull();
-        assertThat(configuration.atualizarTipoUsuarioUsecase(tipoUsuarioGateway)).isNotNull();
+        assertThat(configuration.criarTipoUsuarioUsecase(tipoUsuarioGateway, validarPermissaoUsuarioUsecase)).isNotNull();
+        assertThat(configuration.atualizarTipoUsuarioUsecase(tipoUsuarioGateway, validarPermissaoUsuarioUsecase)).isNotNull();
         assertThat(configuration.buscarTipoUsuarioPorIdUsecase(tipoUsuarioGateway)).isNotNull();
         assertThat(configuration.listarTiposUsuarioUsecase(tipoUsuarioGateway)).isNotNull();
-        assertThat(configuration.desativarTipoUsuarioUsecase(tipoUsuarioGateway)).isNotNull();
-        assertThat(configuration.associarTipoUsuarioUsecase(usuarioGateway, tipoUsuarioGateway)).isNotNull();
+        assertThat(configuration.desativarTipoUsuarioUsecase(tipoUsuarioGateway, validarPermissaoUsuarioUsecase)).isNotNull();
+        assertThat(configuration.associarTipoUsuarioUsecase(usuarioGateway, tipoUsuarioGateway, validarPermissaoUsuarioUsecase)).isNotNull();
     }
 
     @Test
@@ -165,7 +165,7 @@ class InjecaoDependenciaConfigurationTest {
     @Test
     @DisplayName("Deve instanciar use cases de Restaurante")
     void deveInstanciarUseCasesRestaurante() {
-        assertThat(configuration.criarRestauranteUsecase(restauranteGateway, usuarioGateway)).isNotNull();
+        assertThat(configuration.criarRestauranteUsecase(restauranteGateway, usuarioGateway, validarPermissaoUsuarioUsecase)).isNotNull();
         assertThat(configuration.atualizarRestauranteUsecase(restauranteGateway, validarPermissaoUsuarioUsecase)).isNotNull();
         assertThat(configuration.buscarRestaurantePorIdUsecase(restauranteGateway)).isNotNull();
         assertThat(configuration.listarRestaurantesUsecase(restauranteGateway)).isNotNull();
@@ -212,11 +212,11 @@ class InjecaoDependenciaConfigurationTest {
     @Test
     @DisplayName("Deve instanciar use cases de Usuario")
     void deveInstanciarUseCasesUsuario() {
-        assertThat(configuration.criarUsuarioUsecase(usuarioGateway, tipoUsuarioGateway, restauranteGateway)).isNotNull();
-        assertThat(configuration.atualizarUsuarioUsecase(usuarioGateway, tipoUsuarioGateway, restauranteGateway)).isNotNull();
+        assertThat(configuration.criarUsuarioUsecase(usuarioGateway, tipoUsuarioGateway, restauranteGateway, validarPermissaoUsuarioUsecase)).isNotNull();
+        assertThat(configuration.atualizarUsuarioUsecase(usuarioGateway, tipoUsuarioGateway, restauranteGateway, validarPermissaoUsuarioUsecase)).isNotNull();
         assertThat(configuration.buscarUsuarioPorIdUsecase(usuarioGateway)).isNotNull();
-        assertThat(configuration.listarUsuariosPorRestauranteUsecase(usuarioGateway, restauranteGateway)).isNotNull();
-        assertThat(configuration.desativarUsuarioUsecase(usuarioGateway)).isNotNull();
+        assertThat(configuration.listarUsuariosPorRestauranteUsecase(usuarioGateway, restauranteGateway, validarPermissaoUsuarioUsecase)).isNotNull();
+        assertThat(configuration.desativarUsuarioUsecase(usuarioGateway, validarPermissaoUsuarioUsecase)).isNotNull();
     }
 
     @Test

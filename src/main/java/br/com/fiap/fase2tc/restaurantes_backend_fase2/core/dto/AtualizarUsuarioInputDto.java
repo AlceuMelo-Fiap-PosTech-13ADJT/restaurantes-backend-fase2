@@ -18,4 +18,5 @@ public class AtualizarUsuarioInputDto {
     private String email;
     private UUID tipoUsuarioId;
     private UUID restauranteId;
+    private UUID usuarioOperadorId;
 }

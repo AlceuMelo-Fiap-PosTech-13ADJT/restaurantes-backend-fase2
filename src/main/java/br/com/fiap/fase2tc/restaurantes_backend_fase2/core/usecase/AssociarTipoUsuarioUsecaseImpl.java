@@ -4,6 +4,7 @@ import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.domain.TipoUsuario;
 import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.domain.Usuario;
 import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.dto.AssociarTipoUsuarioInputDto;
 import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.dto.UsuarioOutputDto;
+import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.dto.ValidarPermissaoUsuarioInputDto;
 import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.exception.RecursoNaoEncontradoException;
 import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.exception.RegraNegocioException;
 import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.gateway.TipoUsuarioGateway;
@@ -15,6 +16,7 @@ public class AssociarTipoUsuarioUsecaseImpl implements AssociarTipoUsuarioUsecas
 
     private final UsuarioGateway usuarioGateway;
     private final TipoUsuarioGateway tipoUsuarioGateway;
+    private final ValidarPermissaoUsuarioUsecase validarPermissaoUsuarioUsecase;
 
     @Override
     public UsuarioOutputDto executar(AssociarTipoUsuarioInputDto inputDto) {
@@ -23,6 +25,13 @@ public class AssociarTipoUsuarioUsecaseImpl implements AssociarTipoUsuarioUsecas
         }
         if (inputDto.getTipoUsuarioId() == null) {
             throw new RegraNegocioException("ID do tipo de usuário é obrigatório.");
+        }
+
+        if (inputDto.getUsuarioOperadorId() != null) {
+            validarPermissaoUsuarioUsecase.executar(ValidarPermissaoUsuarioInputDto.builder()
+                    .usuarioOperadorId(inputDto.getUsuarioOperadorId())
+                    .requerDono(true)
+                    .build());
         }
 
         Usuario usuario = usuarioGateway.buscarAtivoPorId(inputDto.getUsuarioId())

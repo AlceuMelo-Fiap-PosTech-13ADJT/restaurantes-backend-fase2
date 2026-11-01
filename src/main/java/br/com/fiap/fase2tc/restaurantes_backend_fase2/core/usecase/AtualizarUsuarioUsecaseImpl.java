@@ -6,6 +6,7 @@ import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.domain.TipoUsuario;
 import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.domain.Usuario;
 import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.dto.AtualizarUsuarioInputDto;
 import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.dto.UsuarioOutputDto;
+import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.dto.ValidarPermissaoUsuarioInputDto;
 import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.exception.RecursoNaoEncontradoException;
 import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.exception.RegraNegocioException;
 import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.gateway.RestauranteGateway;
@@ -19,6 +20,7 @@ public class AtualizarUsuarioUsecaseImpl implements AtualizarUsuarioUsecase {
     private final UsuarioGateway usuarioGateway;
     private final TipoUsuarioGateway tipoUsuarioGateway;
     private final RestauranteGateway restauranteGateway;
+    private final ValidarPermissaoUsuarioUsecase validarPermissaoUsuarioUsecase;
 
     @Override
     public UsuarioOutputDto executar(AtualizarUsuarioInputDto inputDto) {
@@ -35,6 +37,17 @@ public class AtualizarUsuarioUsecaseImpl implements AtualizarUsuarioUsecase {
         Usuario usuarioExistente = usuarioGateway.buscarAtivoPorId(inputDto.getId())
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Usuário não encontrado."));
         usuarioExistente.validarAtivo();
+
+        if (inputDto.getUsuarioOperadorId() != null && !inputDto.getUsuarioOperadorId().equals(inputDto.getId())) {
+            UUID targetRestauranteId = inputDto.getRestauranteId() != null
+                    ? inputDto.getRestauranteId()
+                    : usuarioExistente.getRestauranteId();
+            validarPermissaoUsuarioUsecase.executar(ValidarPermissaoUsuarioInputDto.builder()
+                    .usuarioOperadorId(inputDto.getUsuarioOperadorId())
+                    .restauranteId(targetRestauranteId)
+                    .requerDono(true)
+                    .build());
+        }
 
         String novoEmail = inputDto.getEmail().trim().toLowerCase();
         if (!usuarioExistente.getEmail().equalsIgnoreCase(novoEmail) && usuarioGateway.existePorEmail(novoEmail)) {

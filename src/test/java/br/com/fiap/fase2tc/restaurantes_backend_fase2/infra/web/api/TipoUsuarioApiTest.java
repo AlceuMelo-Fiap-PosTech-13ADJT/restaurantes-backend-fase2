@@ -149,7 +149,7 @@ class TipoUsuarioApiTest {
                         .header("usuario-logado-id", usuarioLogadoId))
                 .andExpect(status().isNoContent());
 
-        verify(tipoUsuarioController).desativar(id);
+        verify(tipoUsuarioController).desativar(id, usuarioLogadoId);
     }
 
     @Test

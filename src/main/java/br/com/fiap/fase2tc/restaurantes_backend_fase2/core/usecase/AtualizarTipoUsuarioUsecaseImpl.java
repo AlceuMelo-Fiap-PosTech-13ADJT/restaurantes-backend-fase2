@@ -4,6 +4,7 @@ import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.domain.TipoUsuario;
 import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.domain.TipoUsuarioEnum;
 import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.dto.AtualizarTipoUsuarioInputDto;
 import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.dto.TipoUsuarioOutputDto;
+import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.dto.ValidarPermissaoUsuarioInputDto;
 import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.exception.RecursoNaoEncontradoException;
 import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.exception.RegraNegocioException;
 import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.gateway.TipoUsuarioGateway;
@@ -13,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 public class AtualizarTipoUsuarioUsecaseImpl implements AtualizarTipoUsuarioUsecase {
 
     private final TipoUsuarioGateway tipoUsuarioGateway;
+    private final ValidarPermissaoUsuarioUsecase validarPermissaoUsuarioUsecase;
 
     @Override
     public TipoUsuarioOutputDto executar(AtualizarTipoUsuarioInputDto inputDto) {
@@ -21,6 +23,13 @@ public class AtualizarTipoUsuarioUsecaseImpl implements AtualizarTipoUsuarioUsec
         }
         if (inputDto.getNome() == null || inputDto.getNome().isBlank()) {
             throw new RegraNegocioException("Nome do tipo de usuário é obrigatório.");
+        }
+
+        if (inputDto.getUsuarioOperadorId() != null) {
+            validarPermissaoUsuarioUsecase.executar(ValidarPermissaoUsuarioInputDto.builder()
+                    .usuarioOperadorId(inputDto.getUsuarioOperadorId())
+                    .requerDono(true)
+                    .build());
         }
 
         TipoUsuario tipoUsuario = tipoUsuarioGateway.buscarAtivoPorId(inputDto.getId())

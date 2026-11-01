@@ -4,6 +4,7 @@ import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.domain.TipoUsuario;
 import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.domain.TipoUsuarioEnum;
 import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.dto.CriarTipoUsuarioInputDto;
 import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.dto.TipoUsuarioOutputDto;
+import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.dto.ValidarPermissaoUsuarioInputDto;
 import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.exception.RegraNegocioException;
 import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.gateway.TipoUsuarioGateway;
 import lombok.RequiredArgsConstructor;
@@ -12,11 +13,19 @@ import lombok.RequiredArgsConstructor;
 public class CriarTipoUsuarioUsecaseImpl implements CriarTipoUsuarioUsecase {
 
     private final TipoUsuarioGateway tipoUsuarioGateway;
+    private final ValidarPermissaoUsuarioUsecase validarPermissaoUsuarioUsecase;
 
     @Override
     public TipoUsuarioOutputDto executar(CriarTipoUsuarioInputDto inputDto) {
         if (inputDto == null || inputDto.getNome() == null || inputDto.getNome().isBlank()) {
             throw new RegraNegocioException("Nome do tipo de usuário é obrigatório.");
+        }
+
+        if (inputDto.getUsuarioOperadorId() != null) {
+            validarPermissaoUsuarioUsecase.executar(ValidarPermissaoUsuarioInputDto.builder()
+                    .usuarioOperadorId(inputDto.getUsuarioOperadorId())
+                    .requerDono(true)
+                    .build());
         }
 
         TipoUsuarioEnum tipoEnum;

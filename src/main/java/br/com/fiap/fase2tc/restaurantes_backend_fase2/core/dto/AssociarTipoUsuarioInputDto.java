@@ -15,4 +15,5 @@ public class AssociarTipoUsuarioInputDto {
     private UUID usuarioId;
     private UUID tipoUsuarioId;
     private UUID restauranteId;
+    private UUID usuarioOperadorId;
 }

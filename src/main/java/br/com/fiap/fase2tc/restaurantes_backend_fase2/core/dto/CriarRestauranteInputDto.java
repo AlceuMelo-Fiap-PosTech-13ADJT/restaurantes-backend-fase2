@@ -17,4 +17,5 @@ public class CriarRestauranteInputDto {
     private String tipoCozinha;
     private String horarioFuncionamento;
     private UUID donoId;
+    private UUID usuarioOperadorId;
 }

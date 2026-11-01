@@ -6,6 +6,7 @@ import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.domain.TipoUsuario;
 import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.domain.Usuario;
 import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.dto.CriarUsuarioInputDto;
 import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.dto.UsuarioOutputDto;
+import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.dto.ValidarPermissaoUsuarioInputDto;
 import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.exception.RecursoNaoEncontradoException;
 import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.exception.RegraNegocioException;
 import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.gateway.RestauranteGateway;
@@ -19,11 +20,20 @@ public class CriarUsuarioUsecaseImpl implements CriarUsuarioUsecase {
     private final UsuarioGateway usuarioGateway;
     private final TipoUsuarioGateway tipoUsuarioGateway;
     private final RestauranteGateway restauranteGateway;
+    private final ValidarPermissaoUsuarioUsecase validarPermissaoUsuarioUsecase;
 
     @Override
     public UsuarioOutputDto executar(CriarUsuarioInputDto inputDto) {
         if (inputDto == null) {
             throw new RegraNegocioException("Dados do usuário são obrigatórios.");
+        }
+
+        if (inputDto.getUsuarioOperadorId() != null) {
+            validarPermissaoUsuarioUsecase.executar(ValidarPermissaoUsuarioInputDto.builder()
+                    .usuarioOperadorId(inputDto.getUsuarioOperadorId())
+                    .restauranteId(inputDto.getRestauranteId())
+                    .requerDono(true)
+                    .build());
         }
         if (inputDto.getNome() == null || inputDto.getNome().trim().isBlank()) {
             throw new RegraNegocioException("Nome do usuário é obrigatório.");

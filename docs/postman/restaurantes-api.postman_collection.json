@@ -2060,6 +2060,183 @@
               }
             }
           ]
+        },
+        {
+          "name": "13. Erro 403 - Cliente Tentando Cadastrar Tipo de Usuário",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "usuario-logado-id",
+                "value": "{{clienteR1Id}}",
+                "type": "text",
+                "description": "Operador com perfil Cliente não pode gerenciar Tipos de Usuário"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/tipos-usuario",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "tipos-usuario"
+              ]
+            },
+            "description": "Operações administrativas de Tipos de Usuário exigem operador com perfil Dono de restaurante.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Cliente VIP Especial\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code é 403 Forbidden\", function () {",
+                  "    pm.response.to.have.status(403);",
+                  "});",
+                  "",
+                  "pm.test(\"Mensagem indica erro 403 de permissão\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.status).to.eql(403);",
+                  "    pm.expect(jsonData.mensagem).to.be.a(\"string\");",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "14. Erro 403 - Cliente Tentando Cadastrar Usuário",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "usuario-logado-id",
+                "value": "{{clienteR1Id}}",
+                "type": "text",
+                "description": "Operador com perfil Cliente não pode cadastrar novos usuários"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/usuarios",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "usuarios"
+              ]
+            },
+            "description": "Cadastro e gerenciamento de usuários exige operador com perfil Dono de restaurante.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Operador Tentado por Cliente\",\n  \"email\": \"operador.proibido@email.com\",\n  \"tipoUsuarioId\": \"{{tipoUsuarioClienteId}}\",\n  \"restauranteId\": \"{{restauranteR1Id}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code é 403 Forbidden\", function () {",
+                  "    pm.response.to.have.status(403);",
+                  "});",
+                  "",
+                  "pm.test(\"Mensagem indica erro 403 de autorização\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.status).to.eql(403);",
+                  "    pm.expect(jsonData.mensagem).to.be.a(\"string\");",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "15. Erro 403 - Dono de R2 Tentando Cadastrar Usuário em R1 (Isolamento Multi-tenant)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "usuario-logado-id",
+                "value": "{{donoR2Id}}",
+                "type": "text",
+                "description": "Dono do Restaurante 2 tentando operar no Restaurante 1"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/usuarios",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "usuarios"
+              ]
+            },
+            "description": "Isolamento multi-tenant impede que o dono de um restaurante cadastre usuários para outro restaurante.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Operador Invasor de Tenant\",\n  \"email\": \"operador.cross.tenant@email.com\",\n  \"tipoUsuarioId\": \"{{tipoUsuarioClienteId}}\",\n  \"restauranteId\": \"{{restauranteR1Id}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code é 403 Forbidden\", function () {",
+                  "    pm.response.to.have.status(403);",
+                  "});",
+                  "",
+                  "pm.test(\"Mensagem indica erro 403 de isolamento multi-tenant\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.status).to.eql(403);",
+                  "    pm.expect(jsonData.mensagem).to.be.a(\"string\");",
+                  "});"
+                ]
+              }
+            }
+          ]
         }
       ]
     }

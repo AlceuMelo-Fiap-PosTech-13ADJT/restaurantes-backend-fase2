@@ -4,4 +4,5 @@ import java.util.UUID;
 
 public interface DesativarTipoUsuarioUsecase {
     void executar(UUID id);
+    void executar(UUID id, UUID usuarioOperadorId);
 }

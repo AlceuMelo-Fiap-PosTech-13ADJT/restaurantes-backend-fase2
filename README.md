@@ -1,4 +1,4 @@
-﻿# Restaurantes Backend API — Tech Challenge Fase 2
+# Restaurantes Backend API — Tech Challenge Fase 2
 
 ![Java](https://img.shields.io/badge/Java-%23F29111.svg?style=flat&logo=openjdk&logoColor=white)
 ![Spring Boot](https://img.shields.io/badge/Spring-%236db33f.svg?style=flat&logo=spring&logoColor=white)
@@ -284,14 +284,14 @@ Uma collection completa, padronizada no formato **Postman Collection v2.1**, est
 2. `Usuarios` (6 requisições): Criação com dados dinâmicos, busca por ID, listagem por restaurante (multi-tenancy), atualização, associação de tipo e soft delete.
 3. `Restaurantes` (5 requisições): Criação com UUID, listagem geral, consulta por ID, atualização cadastral por Dono e soft delete seguro.
 4. `Cardapio` (5 requisições): Inclusão de prato por Dono, listagem pública para Clientes, consulta por ID, alteração de item e soft delete.
-5. `Cenários de erro e validação` (12 requisições): Testes estritos de segurança sem Spring Security (header ausente 400, payload inválido 400, UUID malformado 400, cliente criando restaurante 403, cliente editando cardápio 403, invasão cross-tenant 403, recursos inexistentes 404, subtipos inválidos no enum 422 e e-mail duplicado 422).
+5. `Cenários de erro e validação` (15 requisições): Testes estritos de segurança sem Spring Security (header ausente 400, payload inválido 400, UUID malformado 400, cliente criando restaurante 403, cliente criando tipo de usuário 403, cliente criando usuário 403, invasão cross-tenant no cadastro de usuário 403, usuário não-dono alterando restaurante 403, cliente editando cardápio 403, invasão cross-tenant no cardápio 403, recursos inexistentes 404, subtipos inválidos no enum 422 e e-mail duplicado 422).
 
 ### 🚀 Execução pelo Collection Runner do Postman
 1. Abra o **Postman** e clique em **Import** (canto superior esquerdo).
 2. Selecione o arquivo `docs/postman/restaurantes-api.postman_collection.json`.
 3. Na collection importada, clique nos três pontinhos (`...`) e selecione **Run collection**.
 4. Mantenha a ordem das pastas e clique no botão azul **Run Restaurantes API - Fase 2**.
-5. Todas as **64 asserções** serão executadas com 100% de sucesso.
+5. Todas as **70 asserções** serão executadas com 100% de sucesso.
 
 ### 💻 Execução via Terminal (Newman)
 Caso queira executar os testes da API diretamente no terminal ou em pipelines CI/CD:
@@ -318,7 +318,7 @@ O projeto adota a disciplina de testes automatizados com os princípios **F.I.R.
 | **Instruções (Instructions)** | **96.88%** | 80.00% | ✅ Aprovado com Louvor |
 | **Linhas de Código (Lines)** | **97.20%** | 80.00% | ✅ Aprovado com Louvor |
 | **Ramificações (Branches)** | **84.95%** | 80.00% | ✅ Aprovado com Louvor |
-| **Total de Testes Automatizados** | **432 testes** | — | ✅ 100% Sucesso (0 falhas) |
+| **Total de Testes Automatizados** | **437 testes** | — | ✅ 100% Sucesso (0 falhas) |
 
 O relatório visual completo gerado pelo JaCoCo pode ser inspecionado após a execução em:  
 `target/site/jacoco/index.html`
@@ -335,10 +335,10 @@ Todas as operações protegidas exigem o cabeçalho HTTP: `usuario-logado-id: <U
 | :--- | :--- | :--- | :--- | :--- |
 | **GET** | `/v1/tipos-usuario` | `usuario-logado-id` | Retorna todos os tipos de usuário ativos. | `200` |
 | **GET** | `/v1/tipos-usuario/{id}` | `usuario-logado-id` | Detalhes de um tipo de usuário por UUID. | `200`, `400`, `404` |
-| **POST** | `/v1/tipos-usuario` | `usuario-logado-id` | Cria tipo (`{"nome": "Dono de restaurante" \| "Cliente"}`). | `201`, `400`, `403`, `422` |
-| **PUT** | `/v1/tipos-usuario/{id}` | `usuario-logado-id` | Atualiza o nome do tipo de usuário existente. | `200`, `400`, `403`, `404`, `422` |
-| **DELETE** | `/v1/tipos-usuario/{id}` | `usuario-logado-id` | Desativação lógica (soft delete) do tipo. | `204`, `400`, `404` |
-| **POST** | `/v1/tipos-usuario/usuarios/{usuarioId}/associar` | `usuario-logado-id` | Associa um tipo ao usuário (`{"tipoUsuarioId": "UUID"}`). | `200`, `400`, `404`, `422` |
+| **POST** | `/v1/tipos-usuario` | `usuario-logado-id` | Cria tipo (`{"nome": "Dono de restaurante" \| "Cliente"}`). **Restrito a Dono**. | `201`, `400`, `403`, `422` |
+| **PUT** | `/v1/tipos-usuario/{id}` | `usuario-logado-id` | Atualiza o nome do tipo de usuário existente. **Restrito a Dono**. | `200`, `400`, `403`, `404`, `422` |
+| **DELETE** | `/v1/tipos-usuario/{id}` | `usuario-logado-id` | Desativação lógica (soft delete) do tipo. **Restrito a Dono**. | `204`, `400`, `403`, `404` |
+| **POST** | `/v1/tipos-usuario/usuarios/{usuarioId}/associar` | `usuario-logado-id` | Associa um tipo ao usuário (`{"tipoUsuarioId": "UUID"}`). **Restrito a Dono**. | `200`, `400`, `403`, `404`, `422` |
 
 ---
 
@@ -346,12 +346,12 @@ Todas as operações protegidas exigem o cabeçalho HTTP: `usuario-logado-id: <U
 
 | Método | Endpoint | Cabeçalho Obrigatório | Descrição / Payload | Respostas |
 | :--- | :--- | :--- | :--- | :--- |
-| **POST** | `/v1/usuarios` | `usuario-logado-id` | Cadastra usuário (`nome`, `email`, `tipoUsuarioId`, `restauranteId`). | `201`, `400`, `404`, `422` |
+| **POST** | `/v1/usuarios` | `usuario-logado-id` | Cadastra usuário (`nome`, `email`, `tipoUsuarioId`, `restauranteId`). **Restrito ao Dono do restaurante**. | `201`, `400`, `403`, `404`, `422` |
 | **GET** | `/v1/usuarios/{id}` | `usuario-logado-id` | Retorna os detalhes de um usuário por UUID. | `200`, `400`, `404` |
-| **GET** | `/v1/usuarios/restaurante/{restauranteId}` | `usuario-logado-id` | Lista usuários vinculados ao restaurante (multi-tenancy). | `200`, `400`, `404` |
-| **PUT** | `/v1/usuarios/{id}` | `usuario-logado-id` | Atualiza dados cadastrais (`nome`, `email`, etc.). | `200`, `400`, `404`, `422` |
-| **POST** | `/v1/usuarios/{usuarioId}/tipo-usuario` | `usuario-logado-id` | Vincula perfil ao usuário (`{"tipoUsuarioId": "UUID"}`). | `200`, `400`, `404`, `422` |
-| **DELETE** | `/v1/usuarios/{id}` | `usuario-logado-id` | Desativação lógica (soft delete) de usuário. | `204`, `400`, `404` |
+| **GET** | `/v1/usuarios/restaurante/{restauranteId}` | `usuario-logado-id` | Lista usuários do restaurante. **Restrito ao Dono do restaurante**. | `200`, `400`, `403`, `404` |
+| **PUT** | `/v1/usuarios/{id}` | `usuario-logado-id` | Atualiza dados cadastrais. Permitido ao próprio usuário ou ao Dono. | `200`, `400`, `403`, `404`, `422` |
+| **POST** | `/v1/usuarios/{usuarioId}/tipo-usuario` | `usuario-logado-id` | Vincula perfil ao usuário. **Restrito ao Dono do restaurante**. | `200`, `400`, `403`, `404`, `422` |
+| **DELETE** | `/v1/usuarios/{id}` | `usuario-logado-id` | Desativação lógica de usuário. Permitido ao próprio usuário ou ao Dono. | `204`, `400`, `403`, `404` |
 
 ---
 
@@ -359,7 +359,7 @@ Todas as operações protegidas exigem o cabeçalho HTTP: `usuario-logado-id: <U
 
 | Método | Endpoint | Cabeçalho Obrigatório | Descrição / Payload | Respostas |
 | :--- | :--- | :--- | :--- | :--- |
-| **POST** | `/v1/restaurantes` | `usuario-logado-id` | Cadastra restaurante (`nome`, `endereco`, `tipoCozinha`, `horarioFuncionamento`, `donoId`). Valida se dono tem perfil `DONO_RESTAURANTE`. | `201`, `400`, `403`, `422` |
+| **POST** | `/v1/restaurantes` | `usuario-logado-id` | Cadastra restaurante (`nome`, `endereco`, `tipoCozinha`, `horarioFuncionamento`, `donoId`). Valida se o operador no header e donoId possuem perfil `DONO_RESTAURANTE`. | `201`, `400`, `403`, `422` |
 | **GET** | `/v1/restaurantes` | `usuario-logado-id` | Lista todos os restaurantes ativos. | `200`, `400` |
 | **GET** | `/v1/restaurantes/{id}` | `usuario-logado-id` | Retorna os dados completos do restaurante por UUID. | `200`, `400`, `404` |
 | **PUT** | `/v1/restaurantes/{id}` | `usuario-logado-id` | Atualiza restaurante. **Restrito exclusivamente ao dono** cadastrado. | `200`, `400`, `403`, `404`, `422` |
