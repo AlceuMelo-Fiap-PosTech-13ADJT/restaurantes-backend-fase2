@@ -43,8 +43,16 @@ public class UsuarioController {
         return listarUsuariosPorRestauranteUsecase.executar(restauranteId);
     }
 
+    public List<UsuarioOutputDto> listarPorRestaurante(UUID restauranteId, UUID usuarioOperadorId) {
+        return listarUsuariosPorRestauranteUsecase.executar(restauranteId, usuarioOperadorId);
+    }
+
     public void desativar(UUID id) {
         desativarUsuarioUsecase.executar(id);
+    }
+
+    public void desativar(UUID id, UUID usuarioOperadorId) {
+        desativarUsuarioUsecase.executar(id, usuarioOperadorId);
     }
 
     public UsuarioOutputDto associarTipoUsuario(AssociarTipoUsuarioInputDto inputDto) {

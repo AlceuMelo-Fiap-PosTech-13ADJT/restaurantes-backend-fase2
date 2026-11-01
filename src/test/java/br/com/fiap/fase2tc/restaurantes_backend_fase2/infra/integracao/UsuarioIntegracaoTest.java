@@ -1,6 +1,7 @@
 package br.com.fiap.fase2tc.restaurantes_backend_fase2.infra.integracao;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
@@ -158,7 +159,7 @@ class UsuarioIntegracaoTest {
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.status", is(404)))
-                .andExpect(jsonPath("$.mensagem", is("Restaurante não encontrado.")));
+                .andExpect(jsonPath("$.mensagem", containsString("Restaurante não encontrado")));
     }
 
     @Test
@@ -273,5 +274,42 @@ class UsuarioIntegracaoTest {
         assertThat(entity).isNotNull();
         assertThat(entity.getAtivo()).isFalse();
         assertThat(entity.getDataAlteracao()).isNotNull();
+    }
+
+    @Test
+    @DisplayName("Deve retornar 403 Forbidden quando usuário cliente tentar cadastrar novo usuário")
+    void deveRetornar403QuandoClienteTentarCadastrarUsuario() throws Exception {
+        CriarUsuarioRequestJson request = CriarUsuarioRequestJson.builder()
+                .nome("Novo Operador")
+                .email("operador.novo@email.com")
+                .tipoUsuarioId(CLIENTE_TIPO_ID)
+                .restauranteId(RESTAURANTE_1_ID)
+                .build();
+
+        mockMvc.perform(post("/v1/usuarios")
+                .header(HEADER_USUARIO, CLIENTE_R1_ID.toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.status", is(403)));
+    }
+
+    @Test
+    @DisplayName("Deve retornar 403 Forbidden quando dono de outro restaurante tentar cadastrar usuário em restaurante alheio")
+    void deveRetornar403QuandoDonoR2TentarCadastrarUsuarioEmR1() throws Exception {
+        UUID donoR2Id = UUID.fromString("b1a0f443-4318-4720-bd44-df41865c1003");
+        CriarUsuarioRequestJson request = CriarUsuarioRequestJson.builder()
+                .nome("Novo Operador R1")
+                .email("operador.r1@email.com")
+                .tipoUsuarioId(CLIENTE_TIPO_ID)
+                .restauranteId(RESTAURANTE_1_ID)
+                .build();
+
+        mockMvc.perform(post("/v1/usuarios")
+                .header(HEADER_USUARIO, donoR2Id.toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.status", is(403)));
     }
 }

@@ -170,4 +170,20 @@ class TipoUsuarioIntegracaoTest {
         assertThat(entity.getAtivo()).isFalse();
         assertThat(entity.getDataAlteracao()).isNotNull();
     }
+
+    @Test
+    @DisplayName("Deve retornar 403 Forbidden quando usuário cliente tentar criar tipo de usuário")
+    void deveRetornar403QuandoClienteTentarCriarTipoUsuario() throws Exception {
+        UUID clienteId = UUID.fromString("b1a0f443-4318-4720-bd44-df41865c1002");
+        CriarTipoUsuarioRequestJson request = CriarTipoUsuarioRequestJson.builder()
+                .nome("Cliente Especial")
+                .build();
+
+        mockMvc.perform(post("/v1/tipos-usuario")
+                .header(HEADER_USUARIO, clienteId.toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.status", is(403)));
+    }
 }

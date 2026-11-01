@@ -161,4 +161,48 @@ class ValidarPermissaoUsuarioUsecaseTest {
         assertThat(resultado).isNotNull();
         assertThat(resultado.getId()).isEqualTo(operadorId);
     }
+
+    @Test
+    @DisplayName("Deve lançar exceção quando requer dono sem restaurante e operador não tem perfil de Dono")
+    void deveLancarExcecaoQuandoRequerDonoSemRestauranteEOperadorNaoEDono() {
+        var operadorId = UUID.randomUUID();
+        var operador = Usuario.builder()
+                .id(operadorId)
+                .tipoUsuario(TipoUsuario.builder().tipo(TipoUsuarioEnum.CLIENTE).ativo(true).build())
+                .ativo(true)
+                .build();
+
+        when(usuarioGateway.buscarAtivoPorId(operadorId)).thenReturn(Optional.of(operador));
+
+        var input = ValidarPermissaoUsuarioInputDto.builder()
+                .usuarioOperadorId(operadorId)
+                .requerDono(true)
+                .build();
+
+        assertThatThrownBy(() -> usecase.executar(input))
+                .isInstanceOf(DonoRestauranteInvalidoException.class)
+                .hasMessage("O usuário operador não possui o perfil de 'Dono de restaurante'.");
+    }
+
+    @Test
+    @DisplayName("Deve validar com sucesso quando requer dono sem restaurante e operador tem perfil de Dono")
+    void deveValidarComSucessoQuandoRequerDonoSemRestauranteEOperadorEDono() {
+        var operadorId = UUID.randomUUID();
+        var operador = Usuario.builder()
+                .id(operadorId)
+                .tipoUsuario(TipoUsuario.builder().tipo(TipoUsuarioEnum.DONO_RESTAURANTE).ativo(true).build())
+                .ativo(true)
+                .build();
+
+        when(usuarioGateway.buscarAtivoPorId(operadorId)).thenReturn(Optional.of(operador));
+
+        var input = ValidarPermissaoUsuarioInputDto.builder()
+                .usuarioOperadorId(operadorId)
+                .requerDono(true)
+                .build();
+
+        Usuario resultado = usecase.executar(input);
+        assertThat(resultado).isNotNull();
+        assertThat(resultado.getId()).isEqualTo(operadorId);
+    }
 }

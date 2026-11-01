@@ -59,6 +59,7 @@ public class RestauranteApi {
             @RequestHeader("usuario-logado-id") UUID usuarioLogadoId,
             @Valid @RequestBody CriarRestauranteRequestJson request) {
         CriarRestauranteInputDto input = CriarRestauranteInputDto.builder()
+                .usuarioOperadorId(usuarioLogadoId)
                 .nome(request.getNome())
                 .endereco(request.getEndereco())
                 .tipoCozinha(request.getTipoCozinha())

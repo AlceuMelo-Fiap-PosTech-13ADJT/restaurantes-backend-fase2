@@ -51,6 +51,8 @@ public class UsuarioApi {
                 content = @Content(mediaType = "application/json", schema = @Schema(implementation = UsuarioResponseJson.class))),
         @ApiResponse(responseCode = "400", description = "Dados da requisição inválidos ou cabeçalho obrigatório ausente",
                 content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroResponseJson.class))),
+        @ApiResponse(responseCode = "403", description = "Operador não autorizado ou sem permissão de dono",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroResponseJson.class))),
         @ApiResponse(responseCode = "404", description = "Tipo de usuário ou restaurante não encontrado",
                 content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroResponseJson.class))),
         @ApiResponse(responseCode = "422", description = "Regra de negócio violada",
@@ -64,6 +66,7 @@ public class UsuarioApi {
                 .email(request.getEmail())
                 .tipoUsuarioId(request.getTipoUsuarioId())
                 .restauranteId(request.getRestauranteId())
+                .usuarioOperadorId(usuarioLogadoId)
                 .build();
         UsuarioOutputDto output = usuarioController.criar(input);
         return UsuarioResponseJson.fromDto(output);
@@ -75,6 +78,8 @@ public class UsuarioApi {
         @ApiResponse(responseCode = "200", description = "Usuário atualizado com sucesso",
                 content = @Content(mediaType = "application/json", schema = @Schema(implementation = UsuarioResponseJson.class))),
         @ApiResponse(responseCode = "400", description = "Dados da requisição inválidos ou cabeçalho obrigatório ausente",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroResponseJson.class))),
+        @ApiResponse(responseCode = "403", description = "Operador não autorizado a alterar este usuário",
                 content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroResponseJson.class))),
         @ApiResponse(responseCode = "404", description = "Usuário, tipo de usuário ou restaurante não encontrado",
                 content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroResponseJson.class))),
@@ -92,6 +97,7 @@ public class UsuarioApi {
                 .email(request.getEmail())
                 .tipoUsuarioId(request.getTipoUsuarioId())
                 .restauranteId(request.getRestauranteId())
+                .usuarioOperadorId(usuarioLogadoId)
                 .build();
         UsuarioOutputDto output = usuarioController.atualizar(input);
         return UsuarioResponseJson.fromDto(output);
@@ -121,6 +127,8 @@ public class UsuarioApi {
         @ApiResponse(responseCode = "200", description = "Lista de usuários retornada com sucesso"),
         @ApiResponse(responseCode = "400", description = "Formato de ID inválido ou cabeçalho obrigatório ausente",
                 content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroResponseJson.class))),
+        @ApiResponse(responseCode = "403", description = "Operador não autorizado a listar usuários deste restaurante",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroResponseJson.class))),
         @ApiResponse(responseCode = "404", description = "Restaurante não encontrado",
                 content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroResponseJson.class)))
     })
@@ -128,7 +136,7 @@ public class UsuarioApi {
             @Parameter(description = "UUID do restaurante", required = true)
             @PathVariable UUID restauranteId,
             @RequestHeader("usuario-logado-id") UUID usuarioLogadoId) {
-        return usuarioController.listarPorRestaurante(restauranteId).stream()
+        return usuarioController.listarPorRestaurante(restauranteId, usuarioLogadoId).stream()
                 .map(UsuarioResponseJson::fromDto)
                 .toList();
     }
@@ -140,6 +148,8 @@ public class UsuarioApi {
         @ApiResponse(responseCode = "204", description = "Usuário desativado com sucesso"),
         @ApiResponse(responseCode = "400", description = "Formato de ID inválido ou cabeçalho obrigatório ausente",
                 content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroResponseJson.class))),
+        @ApiResponse(responseCode = "403", description = "Operador não autorizado a desativar este usuário",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroResponseJson.class))),
         @ApiResponse(responseCode = "404", description = "Usuário não encontrado",
                 content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroResponseJson.class)))
     })
@@ -147,7 +157,7 @@ public class UsuarioApi {
             @Parameter(description = "UUID do usuário a ser desativado", required = true)
             @PathVariable UUID id,
             @RequestHeader("usuario-logado-id") UUID usuarioLogadoId) {
-        usuarioController.desativar(id);
+        usuarioController.desativar(id, usuarioLogadoId);
     }
 
     @PostMapping("/{usuarioId}/tipo-usuario")
@@ -156,6 +166,8 @@ public class UsuarioApi {
         @ApiResponse(responseCode = "200", description = "Tipo de usuário associado com sucesso ao usuário",
                 content = @Content(mediaType = "application/json", schema = @Schema(implementation = UsuarioResponseJson.class))),
         @ApiResponse(responseCode = "400", description = "Dados da requisição inválidos ou cabeçalho obrigatório ausente",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroResponseJson.class))),
+        @ApiResponse(responseCode = "403", description = "Operador não autorizado a associar perfil a este usuário",
                 content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroResponseJson.class))),
         @ApiResponse(responseCode = "404", description = "Usuário ou tipo de usuário não encontrado",
                 content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroResponseJson.class))),
@@ -170,6 +182,7 @@ public class UsuarioApi {
         AssociarTipoUsuarioInputDto input = AssociarTipoUsuarioInputDto.builder()
                 .usuarioId(usuarioId)
                 .tipoUsuarioId(request.getTipoUsuarioId())
+                .usuarioOperadorId(usuarioLogadoId)
                 .build();
         UsuarioOutputDto output = usuarioController.associarTipoUsuario(input);
         return UsuarioResponseJson.fromDto(output);

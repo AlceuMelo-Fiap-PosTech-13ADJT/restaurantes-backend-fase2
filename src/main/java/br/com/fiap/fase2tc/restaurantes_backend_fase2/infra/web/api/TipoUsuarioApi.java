@@ -63,6 +63,7 @@ public class TipoUsuarioApi {
             @Valid @RequestBody CriarTipoUsuarioRequestJson request) {
         CriarTipoUsuarioInputDto input = CriarTipoUsuarioInputDto.builder()
                 .nome(request.getNome())
+                .usuarioOperadorId(usuarioLogadoId)
                 .build();
         TipoUsuarioOutputDto output = tipoUsuarioController.criar(input);
         return TipoUsuarioResponseJson.fromDto(output);
@@ -90,6 +91,7 @@ public class TipoUsuarioApi {
         AtualizarTipoUsuarioInputDto input = AtualizarTipoUsuarioInputDto.builder()
                 .id(id)
                 .nome(request.getNome())
+                .usuarioOperadorId(usuarioLogadoId)
                 .build();
         TipoUsuarioOutputDto output = tipoUsuarioController.atualizar(input);
         return TipoUsuarioResponseJson.fromDto(output);
@@ -134,6 +136,8 @@ public class TipoUsuarioApi {
         @ApiResponse(responseCode = "204", description = "Tipo de usuário desativado com sucesso"),
         @ApiResponse(responseCode = "400", description = "Formato de ID inválido ou cabeçalho obrigatório ausente",
                 content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroResponseJson.class))),
+        @ApiResponse(responseCode = "403", description = "Operador não autorizado ou sem permissão de dono",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroResponseJson.class))),
         @ApiResponse(responseCode = "404", description = "Tipo de usuário não encontrado",
                 content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroResponseJson.class)))
     })
@@ -141,7 +145,7 @@ public class TipoUsuarioApi {
             @Parameter(description = "UUID do tipo de usuário a ser desativado", required = true)
             @PathVariable UUID id,
             @RequestHeader("usuario-logado-id") UUID usuarioLogadoId) {
-        tipoUsuarioController.desativar(id);
+        tipoUsuarioController.desativar(id, usuarioLogadoId);
     }
 
     @PostMapping("/usuarios/{usuarioId}/associar")
@@ -150,6 +154,8 @@ public class TipoUsuarioApi {
         @ApiResponse(responseCode = "200", description = "Tipo associado ao usuário com sucesso",
                 content = @Content(mediaType = "application/json", schema = @Schema(implementation = UsuarioResponseJson.class))),
         @ApiResponse(responseCode = "400", description = "Dados da requisição inválidos ou cabeçalho obrigatório ausente",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroResponseJson.class))),
+        @ApiResponse(responseCode = "403", description = "Operador não autorizado ou sem permissão de dono",
                 content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroResponseJson.class))),
         @ApiResponse(responseCode = "404", description = "Usuário ou tipo de usuário não encontrado",
                 content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroResponseJson.class))),
@@ -164,6 +170,7 @@ public class TipoUsuarioApi {
         AssociarTipoUsuarioInputDto input = AssociarTipoUsuarioInputDto.builder()
                 .usuarioId(usuarioId)
                 .tipoUsuarioId(request.getTipoUsuarioId())
+                .usuarioOperadorId(usuarioLogadoId)
                 .build();
         UsuarioOutputDto output = tipoUsuarioController.associar(input);
         return UsuarioResponseJson.fromDto(output);

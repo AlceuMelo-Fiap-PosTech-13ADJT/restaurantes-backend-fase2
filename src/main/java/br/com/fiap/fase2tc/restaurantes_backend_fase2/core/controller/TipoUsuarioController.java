@@ -54,6 +54,10 @@ public class TipoUsuarioController {
         desativarTipoUsuarioUsecase.executar(id);
     }
 
+    public void desativar(UUID id, UUID usuarioOperadorId) {
+        desativarTipoUsuarioUsecase.executar(id, usuarioOperadorId);
+    }
+
     public UsuarioOutputDto associar(AssociarTipoUsuarioInputDto inputDto) {
         return associarTipoUsuarioUsecase.executar(inputDto);
     }

@@ -175,7 +175,7 @@ class UsuarioApiTest {
                 .ativo(true)
                 .build();
 
-        when(usuarioController.listarPorRestaurante(restauranteId)).thenReturn(List.of(u1, u2));
+        when(usuarioController.listarPorRestaurante(restauranteId, usuarioLogadoId)).thenReturn(List.of(u1, u2));
 
         mockMvc.perform(get("/v1/usuarios/restaurante/{restauranteId}", restauranteId)
                         .header("usuario-logado-id", usuarioLogadoId)
@@ -186,7 +186,7 @@ class UsuarioApiTest {
                 .andExpect(jsonPath("$[0].nome").value("Usuário 1"))
                 .andExpect(jsonPath("$[1].nome").value("Usuário 2"));
 
-        verify(usuarioController).listarPorRestaurante(restauranteId);
+        verify(usuarioController).listarPorRestaurante(restauranteId, usuarioLogadoId);
     }
 
     @Test
@@ -199,7 +199,7 @@ class UsuarioApiTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
 
-        verify(usuarioController).desativar(id);
+        verify(usuarioController).desativar(id, usuarioLogadoId);
     }
 
     @Test

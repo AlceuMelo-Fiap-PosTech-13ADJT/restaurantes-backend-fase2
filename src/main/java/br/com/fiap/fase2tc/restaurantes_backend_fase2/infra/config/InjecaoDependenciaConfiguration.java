@@ -71,13 +71,17 @@ public class InjecaoDependenciaConfiguration {
 
     // TipoUsuario
     @Bean
-    public CriarTipoUsuarioUsecase criarTipoUsuarioUsecase(TipoUsuarioGateway tipoUsuarioGateway) {
-        return new CriarTipoUsuarioUsecaseImpl(tipoUsuarioGateway);
+    public CriarTipoUsuarioUsecase criarTipoUsuarioUsecase(
+            TipoUsuarioGateway tipoUsuarioGateway,
+            ValidarPermissaoUsuarioUsecase validarPermissaoUsuarioUsecase) {
+        return new CriarTipoUsuarioUsecaseImpl(tipoUsuarioGateway, validarPermissaoUsuarioUsecase);
     }
 
     @Bean
-    public AtualizarTipoUsuarioUsecase atualizarTipoUsuarioUsecase(TipoUsuarioGateway tipoUsuarioGateway) {
-        return new AtualizarTipoUsuarioUsecaseImpl(tipoUsuarioGateway);
+    public AtualizarTipoUsuarioUsecase atualizarTipoUsuarioUsecase(
+            TipoUsuarioGateway tipoUsuarioGateway,
+            ValidarPermissaoUsuarioUsecase validarPermissaoUsuarioUsecase) {
+        return new AtualizarTipoUsuarioUsecaseImpl(tipoUsuarioGateway, validarPermissaoUsuarioUsecase);
     }
 
     @Bean
@@ -91,15 +95,18 @@ public class InjecaoDependenciaConfiguration {
     }
 
     @Bean
-    public DesativarTipoUsuarioUsecase desativarTipoUsuarioUsecase(TipoUsuarioGateway tipoUsuarioGateway) {
-        return new DesativarTipoUsuarioUsecaseImpl(tipoUsuarioGateway);
+    public DesativarTipoUsuarioUsecase desativarTipoUsuarioUsecase(
+            TipoUsuarioGateway tipoUsuarioGateway,
+            ValidarPermissaoUsuarioUsecase validarPermissaoUsuarioUsecase) {
+        return new DesativarTipoUsuarioUsecaseImpl(tipoUsuarioGateway, validarPermissaoUsuarioUsecase);
     }
 
     @Bean
     public AssociarTipoUsuarioUsecase associarTipoUsuarioUsecase(
             UsuarioGateway usuarioGateway,
-            TipoUsuarioGateway tipoUsuarioGateway) {
-        return new AssociarTipoUsuarioUsecaseImpl(usuarioGateway, tipoUsuarioGateway);
+            TipoUsuarioGateway tipoUsuarioGateway,
+            ValidarPermissaoUsuarioUsecase validarPermissaoUsuarioUsecase) {
+        return new AssociarTipoUsuarioUsecaseImpl(usuarioGateway, tipoUsuarioGateway, validarPermissaoUsuarioUsecase);
     }
 
     @Bean
@@ -124,8 +131,9 @@ public class InjecaoDependenciaConfiguration {
     @Bean
     public CriarRestauranteUsecase criarRestauranteUsecase(
             RestauranteGateway restauranteGateway,
-            UsuarioGateway usuarioGateway) {
-        return new CriarRestauranteUsecaseImpl(restauranteGateway, usuarioGateway);
+            UsuarioGateway usuarioGateway,
+            ValidarPermissaoUsuarioUsecase validarPermissaoUsuarioUsecase) {
+        return new CriarRestauranteUsecaseImpl(restauranteGateway, usuarioGateway, validarPermissaoUsuarioUsecase);
     }
 
     @Bean
@@ -231,16 +239,18 @@ public class InjecaoDependenciaConfiguration {
     public CriarUsuarioUsecase criarUsuarioUsecase(
             UsuarioGateway usuarioGateway,
             TipoUsuarioGateway tipoUsuarioGateway,
-            RestauranteGateway restauranteGateway) {
-        return new CriarUsuarioUsecaseImpl(usuarioGateway, tipoUsuarioGateway, restauranteGateway);
+            RestauranteGateway restauranteGateway,
+            ValidarPermissaoUsuarioUsecase validarPermissaoUsuarioUsecase) {
+        return new CriarUsuarioUsecaseImpl(usuarioGateway, tipoUsuarioGateway, restauranteGateway, validarPermissaoUsuarioUsecase);
     }
 
     @Bean
     public AtualizarUsuarioUsecase atualizarUsuarioUsecase(
             UsuarioGateway usuarioGateway,
             TipoUsuarioGateway tipoUsuarioGateway,
-            RestauranteGateway restauranteGateway) {
-        return new AtualizarUsuarioUsecaseImpl(usuarioGateway, tipoUsuarioGateway, restauranteGateway);
+            RestauranteGateway restauranteGateway,
+            ValidarPermissaoUsuarioUsecase validarPermissaoUsuarioUsecase) {
+        return new AtualizarUsuarioUsecaseImpl(usuarioGateway, tipoUsuarioGateway, restauranteGateway, validarPermissaoUsuarioUsecase);
     }
 
     @Bean
@@ -251,13 +261,16 @@ public class InjecaoDependenciaConfiguration {
     @Bean
     public ListarUsuariosPorRestauranteUsecase listarUsuariosPorRestauranteUsecase(
             UsuarioGateway usuarioGateway,
-            RestauranteGateway restauranteGateway) {
-        return new ListarUsuariosPorRestauranteUsecaseImpl(usuarioGateway, restauranteGateway);
+            RestauranteGateway restauranteGateway,
+            ValidarPermissaoUsuarioUsecase validarPermissaoUsuarioUsecase) {
+        return new ListarUsuariosPorRestauranteUsecaseImpl(usuarioGateway, restauranteGateway, validarPermissaoUsuarioUsecase);
     }
 
     @Bean
-    public DesativarUsuarioUsecase desativarUsuarioUsecase(UsuarioGateway usuarioGateway) {
-        return new DesativarUsuarioUsecaseImpl(usuarioGateway);
+    public DesativarUsuarioUsecase desativarUsuarioUsecase(
+            UsuarioGateway usuarioGateway,
+            ValidarPermissaoUsuarioUsecase validarPermissaoUsuarioUsecase) {
+        return new DesativarUsuarioUsecaseImpl(usuarioGateway, validarPermissaoUsuarioUsecase);
     }
 
     @Bean

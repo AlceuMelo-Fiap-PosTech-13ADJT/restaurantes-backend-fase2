@@ -14,4 +14,5 @@ import lombok.NoArgsConstructor;
 public class AtualizarTipoUsuarioInputDto {
     private UUID id;
     private String nome;
+    private UUID usuarioOperadorId;
 }

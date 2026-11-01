@@ -17,4 +17,5 @@ public class CriarUsuarioInputDto {
     private String email;
     private UUID tipoUsuarioId;
     private UUID restauranteId;
+    private UUID usuarioOperadorId;
 }
