@@ -3,6 +3,9 @@ package br.com.fiap.fase2tc.restaurantes_backend_fase2.infra.database.jpa.entity
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+
 import br.com.fiap.fase2tc.restaurantes_backend_fase2.core.domain.TipoUsuarioEnum;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -31,7 +34,8 @@ public class TipoUsuarioEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(updatable = false, nullable = false)
+    @JdbcTypeCode(SqlTypes.VARCHAR)
+    @Column(updatable = false, nullable = false, length = 36)
     private UUID id;
 
     @Enumerated(EnumType.STRING)
