@@ -3,6 +3,9 @@ package br.com.fiap.fase2tc.restaurantes_backend_fase2.infra.database.jpa.entity
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -31,7 +34,8 @@ public class UsuarioEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(updatable = false, nullable = false)
+    @JdbcTypeCode(SqlTypes.VARCHAR)
+    @Column(updatable = false, nullable = false, length = 36)
     private UUID id;
 
     @Column(nullable = false, length = 150)
@@ -40,7 +44,8 @@ public class UsuarioEntity {
     @Column(nullable = false, length = 150, unique = true)
     private String email;
 
-    @Column(name = "restaurante_id")
+    @JdbcTypeCode(SqlTypes.VARCHAR)
+    @Column(name = "restaurante_id", length = 36)
     private UUID restauranteId;
 
     @ManyToOne(fetch = FetchType.EAGER)
