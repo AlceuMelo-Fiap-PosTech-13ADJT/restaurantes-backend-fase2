@@ -15,28 +15,32 @@
 > Projeto desenvolvido como requisito e instrumento de avaliação para o **Tech Challenge da Fase 2**  
 > Turma **13ADJT**  
 > Grupo **9**  
-> ... Integrantes (1) : Alceu Luís de Andrade Melo
+> ... Integrantes (1) : Alceu Luís de Andrade Melo  
+> Repositório GitHub: [https://github.com/AlceuMelo-Fiap-PosTech-13ADJT/restaurantes-backend-fase2](https://github.com/AlceuMelo-Fiap-PosTech-13ADJT/restaurantes-backend-fase2)  
+> Vídeo da apresentação: [https://youtu.be/dmYl8yuSV8U](https://youtu.be/dmYl8yuSV8U)
 
 ---
 
 ## 📌 Sumário
-1. [Visão Geral do Projeto](#-visão-geral-do-projeto)
-2. [Stack Tecnológica e Ferramentas](#-stack-tecnológica-e-ferramentas)
-3. [Arquitetura da Aplicação (Clean Architecture)](#-arquitetura-da-aplicação-clean-architecture)
-4. [Diretrizes e Regras de Negócio Mandatórias](#-diretrizes-e-regras-de-negócio-mandatórias)
-5. [Estrutura de Diretórios](#-estrutura-de-diretórios)
-6. [Como Executar o Projeto](#-como-executar-o-projeto)
-   - [Opção 1: Execução Local com Maven (Banco H2 em Memória)](#opção-1-execução-local-com-maven-desenvolvimento-com-h2)
-   - [Opção 2: Execução com Docker Compose (Deploy com MySQL 8)](#opção-2-execução-com-docker-compose-deploy-produção-com-mysql)
-7. [Documentação Interativa (Swagger / OpenAPI)](#-documentação-interativa-swagger--openapi)
-8. [Console do Banco H2 em Memória](#-console-do-banco-h2-em-memória)
-9. [Testando com Postman (Collection Runner & Newman)](#-testando-com-postman-collection-runner--newman)
-10. [Testes Automatizados e Cobertura (JUnit 5 + JaCoCo)](#-testes-automatizados-e-cobertura-junit-5--jacoco)
-11. [Catálogo Completo de Endpoints da API](#-catálogo-completo-de-endpoints-da-api)
-12. [Tratamento Global de Erros e Exceções](#-tratamento-global-de-erros-e-exceções)
-13. [Licença](#-licença)
+1. [Visão Geral do Projeto](#sec-visao-geral)
+2. [Stack Tecnológica e Ferramentas](#sec-stack)
+3. [Arquitetura da Aplicação (Clean Architecture)](#sec-arquitetura)
+4. [Diretrizes e Regras de Negócio Mandatórias](#sec-diretrizes)
+5. [Estrutura de Diretórios](#sec-estrutura)
+6. [Como Executar o Projeto](#sec-como-executar)
+   - [Opção 1: Execução Local com Maven (Banco H2 em Memória)](#sec-opcao-1)
+   - [Opção 2: Execução com Docker Compose (Deploy com MySQL 8)](#sec-opcao-2)
+7. [Documentação Interativa (Swagger / OpenAPI)](#sec-swagger)
+8. [Console do Banco H2 em Memória](#sec-h2-console)
+9. [Testando com Postman (Collection Runner & Newman)](#sec-postman)
+10. [Testes Automatizados e Cobertura (JUnit 5 + JaCoCo)](#sec-testes)
+11. [Catálogo Completo de Endpoints da API](#sec-endpoints)
+12. [Tratamento Global de Erros e Exceções](#sec-erros)
+13. [Licença](#sec-licenca)
 
 ---
+
+<a id="sec-visao-geral"></a>
 
 ## 🎯 Visão Geral do Projeto
 
@@ -51,6 +55,8 @@ O **Restaurantes Backend** é uma API REST desenvolvida em **Java com Spring Boo
 - **Identificadores UUID Universais**: Todos os IDs do sistema utilizam `java.util.UUID` (`VARCHAR(36)`), sem identificadores numéricos ou auto-incremento.
 
 ---
+
+<a id="sec-stack"></a>
 
 ## 🚀 Stack Tecnológica e Ferramentas
 
@@ -69,6 +75,8 @@ O **Restaurantes Backend** é uma API REST desenvolvida em **Java com Spring Boo
 | **Produtividade** | Lombok | Redução de boilerplate em DTOs e entidades |
 
 ---
+
+<a id="sec-arquitetura"></a>
 
 ## 🏗 Arquitetura da Aplicação (Clean Architecture)
 
@@ -134,7 +142,9 @@ sequenceDiagram
 
 ---
 
-## 🛡️ Diretrizes e Regras de Negócio Mandatórias
+<a id="sec-diretrizes"></a>
+
+## 🛡 Diretrizes e Regras de Negócio Mandatórias
 
 1. **Sem Spring Security**:
    - Não são utilizadas dependências de autenticação mágica ou filtros do Spring Security.
@@ -156,6 +166,8 @@ sequenceDiagram
    - Todos os IDs são gerados e trafegados no formato UUID v4 (`java.util.UUID`).
 
 ---
+
+<a id="sec-estrutura"></a>
 
 ## 📂 Estrutura de Diretórios
 
@@ -200,13 +212,17 @@ restaurantes-backend-fase2/
 
 ---
 
-## 🛠️ Como Executar o Projeto
+<a id="sec-como-executar"></a>
+
+## 🛠 Como Executar o Projeto
 
 ### Pré-requisitos
 - **Para Desenvolvimento Local**: JDK 21 LTS e Maven (não requer Docker nem MySQL).
 - **Para Deploy em Container**: Docker e Docker Compose instalados.
 
 ---
+
+<a id="sec-opcao-1"></a>
 
 ### Opção 1: Execução Local com Maven (Desenvolvimento com H2)
 
@@ -230,6 +246,8 @@ cd restaurantes-backend-fase2
 
 ---
 
+<a id="sec-opcao-2"></a>
+
 ### Opção 2: Execução com Docker Compose (Deploy / Produção com MySQL)
 
 Para subir o ambiente completo de produção conteinerizado com a aplicação conectada a um serviço **MySQL 8 oficial**:
@@ -250,6 +268,8 @@ docker compose down
 
 ---
 
+<a id="sec-swagger"></a>
+
 ## 📖 Documentação Interativa (Swagger / OpenAPI)
 
 Com a aplicação em execução (localmente ou via Docker), a especificação completa da API pode ser explorada interativamente no navegador:
@@ -261,7 +281,9 @@ A documentação apresenta descrições ricas, parâmetros obrigatórios, schema
 
 ---
 
-## 🗄️ Console do Banco H2 em Memória
+<a id="sec-h2-console"></a>
+
+## 🗄 Console do Banco H2 em Memória
 
 Durante a execução no perfil `dev`, o console do H2 permite inspecionar tabelas, registros e auditoria em tempo real:
 
@@ -273,6 +295,8 @@ Durante a execução no perfil `dev`, o console do H2 permite inspecionar tabela
   - **Password**: *(em branco)*
 
 ---
+
+<a id="sec-postman"></a>
 
 ## 📮 Testando com Postman (Collection Runner & Newman)
 
@@ -302,6 +326,8 @@ npx --yes newman run docs/postman/restaurantes-api.postman_collection.json
 
 ---
 
+<a id="sec-testes"></a>
+
 ## 🧪 Testes Automatizados e Cobertura (JUnit 5 + JaCoCo)
 
 O projeto adota a disciplina de testes automatizados com os princípios **F.I.R.S.T.**, cobrindo testes unitários de regras de negócio puras e testes de integração de ponta a ponta (E2E) simulando requisições HTTP reais com `MockMvc` e banco em memória:
@@ -324,6 +350,8 @@ O relatório visual completo gerado pelo JaCoCo pode ser inspecionado após a ex
 `target/site/jacoco/index.html`
 
 ---
+
+<a id="sec-endpoints"></a>
 
 ## 📋 Catálogo Completo de Endpoints da API
 
@@ -379,7 +407,9 @@ Todas as operações protegidas exigem o cabeçalho HTTP: `usuario-logado-id: <U
 
 ---
 
-## ⚠️ Tratamento Global de Erros e Exceções
+<a id="sec-erros"></a>
+
+## ⚠ Tratamento Global de Erros e Exceções
 
 O tratamento de exceções é centralizado no `GlobalExceptionHandler` (`infra.web.handler`), interceptando erros da camada web e exceções de negócio do domínio e convertendo-as em respostas padronizadas em JSON (`ErroResponseJson`):
 
@@ -409,6 +439,8 @@ O tratamento de exceções é centralizado no `GlobalExceptionHandler` (`infra.w
 ```
 
 ---
+
+<a id="sec-licenca"></a>
 
 ## 📄 Licença
 
